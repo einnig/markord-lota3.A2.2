@@ -1,0 +1,831 @@
+<!DOCTYPE html>
+<html lang="is">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Markorð - Lota 2 - A2.2</title>
+    <style>
+        body { 
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+            text-align: center; 
+            background-color: #f0f4f8; 
+            margin: 0;
+            padding: 2vh 5vw; 
+            min-height: 95vh; 
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-sizing: border-box;
+        }
+        .container { 
+            width: 100%; 
+            max-width: 1200px; 
+            background: white; 
+            padding: 30px 40px; 
+            border-radius: 20px; 
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1); 
+            max-height: 100%;
+            overflow-y: auto;
+        }
+        h1 {
+            color: #1a73e8;
+            font-size: 2em;
+            margin-top: 0;
+            margin-bottom: 15px;
+        }
+        /* Framvindustika */
+        .progress-container {
+            width: 100%;
+            background-color: #e0e0e0;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            height: 20px;
+        }
+        #progress-bar {
+            height: 100%;
+            width: 0%;
+            background-color: #34a853;
+            border-radius: 10px;
+            transition: width 0.5s ease-in-out;
+        }
+        
+        #counter { font-size: 1.2em; color: #666; font-weight: bold; margin-bottom: 10px; }
+
+        .lang-selector {
+            margin-bottom: 20px;
+            background: #fff3e0;
+            padding: 10px 15px;
+            border-radius: 10px;
+            display: inline-block;
+            border: 1px solid #ffcc80;
+        }
+
+        .lang-selector select {
+            padding: 8px;
+            font-size: 1.1em;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+            cursor: pointer;
+            margin-left: 10px;
+            max-width: 300px;
+        }
+        
+        #target { 
+            font-size: 4em; 
+            margin: 10px 0; 
+            color: #222; 
+            font-weight: bold;
+        }
+        
+        #is-explanation {
+            font-size: 1.2em;
+            color: #333;
+            background-color: #e8f0fe;
+            padding: 15px 25px;
+            border-radius: 10px;
+            display: inline-block;
+            margin-bottom: 20px;
+            max-width: 80%;
+            line-height: 1.6;
+            text-align: left;
+        }
+
+        .btn { 
+            padding: 12px 25px; 
+            font-size: 1.2em; 
+            margin: 5px; 
+            cursor: pointer; 
+            border: none; 
+            border-radius: 8px; 
+            background-color: #1a73e8; 
+            color: white; 
+            transition: 0.3s; 
+            font-weight: bold;
+        }
+        .btn:hover:not(:disabled) { background-color: #1557b0; transform: scale(1.02); }
+        .recording { background-color: #d93025; animation: pulse 1.5s infinite; }
+        .recording:hover { background-color: #b3140b; }
+        
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+
+        #media-box { 
+            font-size: 1.1em; 
+            color: #444; 
+            text-align: left; 
+            background: #f8fbff; 
+            padding: 15px 30px; 
+            border-radius: 12px; 
+            line-height: 1.6; 
+            border-left: 6px solid #1a73e8; 
+            margin-top: 15px;
+            display: inline-block;
+            min-width: 70%;
+        }
+        #spoken {
+            margin-top: 15px; 
+            font-size: 1.4em;
+            font-style: italic; 
+            color: #555;
+        }
+        #result {
+            font-weight: bold; 
+            font-size: 1.8em; 
+            margin-top: 5px; 
+            color: #1a73e8;
+        }
+        .nav-btns { margin-top: 20px; }
+        
+        /* Fyrir nafnainnslátt */
+        #studentName {
+            font-size: 1.5em;
+            padding: 10px;
+            margin: 20px 0;
+            width: 80%;
+            max-width: 400px;
+            border: 2px solid #1a73e8;
+            border-radius: 8px;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container" id="app">
+    <h1>Markorð - Lota 2 - A2.2</h1>
+    
+    <div class="progress-container">
+        <div id="progress-bar"></div>
+    </div>
+
+    <div class="lang-selector">
+        <label for="languageSelect"><b>🌍 Veldu tungumál:</b></label>
+        <select id="languageSelect" onchange="updateUI()">
+            <option value="sq">Albanska – Shqip</option>
+            <option value="ar">Arabíska – العربية</option>
+            <option value="da">Danska – Dansk</option>
+            <option value="et">Eistneska – Eesti</option>
+            <option value="en" selected>Enska – English</option>
+            <option value="tl">Filippseyska – Tagalog / Filipino</option>
+            <option value="fr">Franska – Français</option>
+            <option value="it">Ítalska – Italiano</option>
+            <option value="zh">Kínverska – 中文</option>
+            <option value="ku">Kúrdíska – Kurdî</option>
+            <option value="lv">Lettneska – Latviešu</option>
+            <option value="lt">Litháíska – Lietuvių</option>
+            <option value="no">Norska – Norsk</option>
+            <option value="fa">Persneska – فارسی</option>
+            <option value="pt">Portúgalska – Português (EU)</option>
+            <option value="pt-BR">Portúgalska (Brasilía) – Português (BR)</option>
+            <option value="pl">Pólska – Polski</option>
+            <option value="ro">Rúmenska – Română</option>
+            <option value="ru">Rússneska – Русский</option>
+            <option value="es">Spænska – Español</option>
+            <option value="sv">Sænska – Svenska</option>
+            <option value="th">Tælenska – ภาษาไทย</option>
+            <option value="uk">Úkraínska – Українська</option>
+            <option value="vi">Víetnamska – Tiếng Việt</option>
+            <option value="de">Þýska – Deutsch</option>
+        </select>
+    </div>
+
+    <div id="counter"></div>
+    
+    <div id="target"></div>
+    <div id="is-explanation"></div>
+    <br>
+    <button id="record-btn" class="btn" onclick="toggleRecord()">🎤 Tala</button>
+    
+    <div id="spoken"></div>
+    <div id="result"></div>
+
+    <div id="media-box"></div>
+
+    <div class="nav-btns">
+        <button class="btn" style="background-color: #5f6368;" onclick="prevExercise()">⬅️ Fyrri</button>
+        <button class="btn" style="background-color: #5f6368;" onclick="nextExercise()">Næsta ➡️</button>
+    </div>
+</div>
+
+<script>
+const exerciseData = [
+    { 
+        text: "meðferð", 
+        is_exp: "<b>Útskýring:</b> Hjálp hjá lækni eða sálfræðingi til að verða heilbrigður. Getur líka þýtt hvernig komið er fram við fólk eða dýr. (nafnorð)<br><b>Samheiti:</b> lækning, aðhlynning, framkoma.<br><b>Dæmi:</b> 1. Hún fór í góða <b>meðferð</b> hjá lækninum. 2. <b>Meðferðin</b> á dýrunum var mjög slæm.",
+        translations: {
+            "sq": "<b>Albanska (Shqip):</b><br><b>Shpjegimi:</b> Ndihmë mjekësore për t'u shëruar, ose mënyra si trajtohet dikush. (emër)<br><b>Sinonimet:</b> trajtim, kurë.<br><b>Shembuj:</b> 1. Ajo mori një <b>trajtim</b> të mirë. 2. <b>Trajtimi</b> i kafshëve ishte shumë i keq.",
+            "ar": "<div dir='rtl' style='text-align: right;'><b>Arabíska (العربية):</b><br><b>الشرح:</b> مساعدة طبية للشفاء، أو طريقة التعامل. (اسم)<br><b>مرادف:</b> علاج، معاملة.<br><b>مثال:</b> 1. تلقت <b>علاجاً</b> جيداً عند الطبيب. 2. كانت <b>معاملة</b> الحيوانات سيئة جداً.</div>",
+            "da": "<b>Danska (Dansk):</b><br><b>Forklaring:</b> Hjælp hos en læge, eller hvordan man behandler nogen. (navneord)<br><b>Synonymer:</b> helbredelse, behandling.<br><b>Eksempler:</b> 1. Hun fik en god <b>behandling</b> hos lægen. 2. <b>Behandlingen</b> af dyrene var meget dårlig.",
+            "et": "<b>Eistneska (Eesti):</b><br><b>Selgitus:</b> Meditsiiniline abi või kellegi/millegi kohtlemine. (nimisõna)<br><b>Sünonüümid:</b> ravi, käsitlus.<br><b>Näited:</b> 1. Ta sai arstilt head <b>ravi</b>. 2. Loomade <b>kohtlemine</b> oli väga halb.",
+            "en": "<b>Enska (English):</b><br><b>Explanation:</b> Medical help to get well, or the way someone/something is treated. (noun)<br><b>Synonyms:</b> treatment, therapy, handling.<br><b>Examples:</b> 1. She received good <b>treatment</b> from the doctor. 2. The <b>treatment</b> of the animals was very bad.",
+            "tl": "<b>Filippseyska (Tagalog):</b><br><b>Paliwanag:</b> Tulong medikal upang gumaling, o kung paano tratuhin ang isang tao/bagay. (pangngalan)<br><b>Kasingkahulugan:</b> pagpapagaling, pagtrato.<br><b>Halimbawa:</b> 1. Nakatanggap siya ng magandang <b>paggamot</b> sa doktor. 2. Ang <b>pagtrato</b> sa mga hayop ay masama.",
+            "fr": "<b>Franska (Français):</b><br><b>Explication:</b> Aide médicale pour guérir, ou la façon de traiter quelqu'un. (nom)<br><b>Synonymes:</b> guérison, traitement.<br><b>Exemples:</b> 1. Elle a reçu un bon <b>traitement</b> chez le médecin. 2. Le <b>traitement</b> des animaux était très mauvais.",
+            "it": "<b>Ítalska (Italiano):</b><br><b>Spiegazione:</b> Aiuto medico per guarire, o il modo in cui qualcuno viene trattato. (sostantivo)<br><b>Sinonimi:</b> cura, trattamento.<br><b>Esempi:</b> 1. Ha ricevuto un buon <b>trattamento</b> dal medico. 2. Il <b>trattamento</b> degli animali è stato pessimo.",
+            "zh": "<b>Kínverska (中文):</b><br><b>解释:</b> 医生的治疗，或对待他人/动物的方式。 (名词)<br><b>同义词:</b> 治疗, 待遇。<br><b>例句:</b> 1. 她在医生那里接受了很好的<b>治疗</b>。2. 对动物的<b>待遇</b>很差。",
+            "ku": "<b>Kúrdíska (Kurdî):</b><br><b>Ravekirin:</b> Alîkariya bijîşkî, an awayê reftarkirinê. (navdêr)<br><b>Hevwate:</b> dermankirin, reftar.<br><b>Mînak:</b> 1. Wê <b>dermankirinek</b> baş wergirt. 2. <b>Reftara</b> bi ajalan re gelek xirab bû.",
+            "lv": "<b>Lettneska (Latviešu):</b><br><b>Paskaidrojums:</b> Medicīniska palīdzība vai izturēšanās veids. (lietvārds)<br><b>Sinonīmi:</b> ārstēšana, aprūpe.<br><b>Piemēri:</b> 1. Viņa saņēma labu <b>ārstēšanu</b>. 2. <b>Izturēšanās</b> pret dzīvniekiem bija slikta.",
+            "lt": "<b>Litháíska (Lietuvių):</b><br><b>Paaiškinimas:</b> Medicininė pagalba norint pasveikti, arba elgesys su kažkuo. (daiktavardis)<br><b>Sinonimai:</b> gydymas, elgesys.<br><b>Pavyzdžiai:</b> 1. Ji gavo gerą <b>gydymą</b> pas gydytoją. 2. <b>Elgesys</b> su gyvūnais buvo labai blogas.",
+            "no": "<b>Norska (Norsk):</b><br><b>Forklaring:</b> Hjelp hos en lege, eller måten man behandler noen på. (substantiv)<br><b>Synonymer:</b> helbredelse, behandling.<br><b>Eksempler:</b> 1. Hun fikk god <b>behandling</b> hos legen. 2. <b>Behandlingen</b> av dyrene var svært dårlig.",
+            "fa": "<div dir='rtl' style='text-align: right;'><b>Persneska (فارسی):</b><br><b>توضیح:</b> کمک پزشکی برای بهبودی، یا نحوه رفتار با کسی. (اسم)<br><b>مترادف:</b> درمان، رفتار.<br><b>مثال:</b> 1. او <b>درمان</b> خوبی از پزشک دریافت کرد. 2. <b>رفتار</b> با حیوانات بسیار بد بود.</div>",
+            "pt": "<b>Portúgalska (Português):</b><br><b>Explicação:</b> Ajuda médica para melhorar, ou a forma como alguém é tratado. (substantivo)<br><b>Sinônimos:</b> cura, tratamento, manejo.<br><b>Exemplos:</b> 1. Ela recebeu um bom <b>tratamento</b> do médico. 2. O <b>tratamento</b> dos animais foi muito ruim.",
+            "pt-BR": "<b>Portúgalska - Brasilía (Português - Brasil):</b><br><b>Explicação:</b> Ajuda médica para melhorar, ou a forma como alguém é tratado. (substantivo)<br><b>Sinônimos:</b> cura, tratamento, manejo.<br><b>Exemplos:</b> 1. Ela recebeu um bom <b>tratamento</b> do médico. 2. O <b>tratamento</b> dos animais foi muito ruim.",
+            "pl": "<b>Pólska (Polski):</b><br><b>Wyjaśnienie:</b> Pomoc medyczna lub sposób traktowania kogoś. (rzeczownik)<br><b>Synonimy:</b> leczenie, traktowanie.<br><b>Przykłady:</b> 1. Przeszła dobre <b>leczenie</b> u lekarza. 2. <b>Traktowanie</b> zwierząt było bardzo złe.",
+            "ro": "<b>Rúmenska (Română):</b><br><b>Explicație:</b> Ajutor medical sau modul în care cineva este tratat. (substantiv)<br><b>Sinonime:</b> vindecare, tratament.<br><b>Exemple:</b> 1. Ea a primit un <b>tratament</b> bun. 2. <b>Tratamentul</b> animalelor a fost foarte rău.",
+            "ru": "<b>Rússneska (Русский):</b><br><b>Объяснение:</b> Медицинская помощь или обращение с кем-либо/чем-либо. (существительное)<br><b>Синонимы:</b> исцеление, лечение, обращение.<br><b>Примеры:</b> 1. Она прошла хорошее <b>лечение</b> у врача. 2. <b>Обращение</b> с животными было плохим.",
+            "es": "<b>Spænska (Español):</b><br><b>Explicación:</b> Ayuda médica para sanar, o el trato hacia alguien/algo. (sustantivo)<br><b>Sinónimos:</b> curación, tratamiento, trato.<br><b>Ejemplos:</b> 1. Ella recibió un buen <b>tratamiento</b> del médico. 2. El <b>trato</b> a los animales fue muy malo.",
+            "sv": "<b>Sænska (Svenska):</b><br><b>Förklaring:</b> Hjälp av läkare för att bli frisk, eller hur man behandlar någon. (substantiv)<br><b>Synonymer:</b> läkning, behandling.<br><b>Exempel:</b> 1. Hon fick en bra <b>behandling</b> hos läkaren. 2. <b>Behandlingen</b> av djuren var mycket dålig.",
+            "th": "<b>Tælenska (ภาษาไทย):</b><br><b>คำอธิบาย:</b> ความช่วยเหลือทางการแพทย์เพื่อให้หายดี หรือการปฏิบัติต่อผู้อื่น/สัตว์ (คำนาม)<br><b>คำพ้องความหมาย:</b> การรักษา, การดูแล, การปฏิบัติ<br><b>ตัวอย่าง:</b> 1. เธอได้รับการ<b>รักษา</b>ที่ดีจากแพทย์ 2. การ<b>ปฏิบัติ</b>ต่อสัตว์นั้นแย่มาก",
+            "uk": "<b>Úkraínska (Українська):</b><br><b>Пояснення:</b> Медична допомога для одужання, або поводження з кимось. (іменник)<br><b>Синоніми:</b> зцілення, лікування, ставлення.<br><b>Приклади:</b> 1. Вона пройшла гарне <b>лікування</b> у лікаря. 2. <b>Ставлення</b> до тварин було дуже поганим.",
+            "vi": "<b>Víetnamska (Tiếng Việt):</b><br><b>Giải thích:</b> Trợ giúp y tế để khỏe lại, hoặc cách đối xử với ai đó. (danh từ)<br><b>Từ đồng nghĩa:</b> chữa bệnh, điều trị, đối xử.<br><b>Ví dụ:</b> 1. Cô ấy đã nhận được sự <b>điều trị</b> tốt. 2. Cách <b>đối xử</b> với động vật rất tệ.",
+            "de": "<b>Þýska (Deutsch):</b><br><b>Erklärung:</b> Medizinische Hilfe oder die Art und Weise, wie man jemanden behandelt. (Substantiv)<br><b>Synonyme:</b> Behandlung, Therapie.<br><b>Beispiele:</b> 1. Sie bekam eine gute <b>Behandlung</b> beim Arzt. 2. Die <b>Behandlung</b> der Tiere war sehr schlecht."
+        }
+    },
+    { 
+        text: "sérstaklega", 
+        is_exp: "<b>Útskýring:</b> Mjög mikið, meira en annað. Einnig eitthvað sem er gert af ákveðnu tilefni. (atviksorð)<br><b>Samheiti:</b> einkum, aðallega.<br><b>Andheiti:</b> almennt.<br><b>Dæmi:</b> 1. Þetta er <b>sérstaklega</b> fallegt lag. 2. Ég bakaði þessa köku <b>sérstaklega</b> fyrir þig.",
+        translations: {
+            "sq": "<b>Albanska (Shqip):</b><br><b>Shpjegimi:</b> Shumë, më shumë se të tjerat. Ose e bërë për një arsye të caktuar. (ndajfolje)<br><b>Sinonimet:</b> veçanërisht, posaçërisht.<br><b>Antonimet:</b> përgjithësisht.<br><b>Shembuj:</b> 1. Kjo është një këngë <b>veçanërisht</b> e bukur. 2. E poqa këtë tortë <b>posaçërisht</b> për ty.",
+            "ar": "<div dir='rtl' style='text-align: right;'><b>Arabíska (العربية):</b><br><b>الشرح:</b> كثيراً جداً، أكثر من غيره. أو لسبب محدد. (ظرف)<br><b>مرادف:</b> خصوصاً، بشكل خاص.<br><b>مضاد:</b> عموماً.<br><b>مثال:</b> 1. هذه أغنية جميلة <b>بشكل خاص</b>. 2. خبزت هذه الكعكة <b>خصيصاً</b> لك.</div>",
+            "da": "<b>Danska (Dansk):</b><br><b>Forklaring:</b> Meget, mere end andet. Også noget gjort til en bestemt anledning. (biord)<br><b>Synonymer:</b> især, specielt.<br><b>Antonymer:</b> generelt, almindeligt.<br><b>Eksempler:</b> 1. Dette er en <b>særligt</b> smuk sang. 2. Jeg bagte denne kage <b>specielt</b> til dig.",
+            "et": "<b>Eistneska (Eesti):</b><br><b>Selgitus:</b> Väga palju, rohkem kui teised. Või kindlal eesmärgil. (määrsõna)<br><b>Sünonüümid:</b> eriti, spetsiaalselt.<br><b>Antonüümid:</b> üldiselt.<br><b>Näited:</b> 1. See on <b>eriti</b> ilus laul. 2. Küpsetasin selle koogi <b>spetsiaalselt</b> sulle.",
+            "en": "<b>Enska (English):</b><br><b>Explanation:</b> Very much, more than other things, or something done for a specific reason. (adverb)<br><b>Synonyms:</b> particularly, especially, specially.<br><b>Antonyms:</b> generally, normally.<br><b>Examples:</b> 1. This is an <b>especially</b> beautiful song. 2. I baked this cake <b>specially</b> for you.",
+            "tl": "<b>Filippseyska (Tagalog):</b><br><b>Paliwanag:</b> Sobra, higit sa iba, o ginawa para sa isang tiyak na dahilan. (pang-abay)<br><b>Kasingkahulugan:</b> partikular, lalo na.<br><b>Kasalungat:</b> pangkalahatan.<br><b>Halimbawa:</b> 1. Ito ay isang <b>lalong</b> magandang kanta. 2. Niluto ko ang cake na ito <b>partikular</b> para sa iyo.",
+            "fr": "<b>Franska (Français):</b><br><b>Explication:</b> Beaucoup, plus que d'autres choses. Ou fait pour une raison précise. (adverbe)<br><b>Synonymes:</b> particulièrement, spécialement.<br><b>Antonymes:</b> généralement, en général.<br><b>Exemples:</b> 1. C'est une chanson <b>particulièrement</b> belle. 2. J'ai préparé ce gâteau <b>spécialement</b> pour toi.",
+            "it": "<b>Ítalska (Italiano):</b><br><b>Spiegazione:</b> Molto, più di altre cose. O fatto per un motivo specifico. (avverbio)<br><b>Sinonimi:</b> particolarmente, appositamente, specialmente.<br><b>Antonimi:</b> generalmente.<br><b>Esempi:</b> 1. Questa è una canzone <b>particolarmente</b> bella. 2. Ho preparato questa torta <b>appositamente</b> per te.",
+            "zh": "<b>Kínverska (中文):</b><br><b>解释:</b> 非常，超过其他事物。或为特定目的而做。 (副词)<br><b>同义词:</b> 特别，尤其，专门。<br><b>反义词:</b> 一般，普遍。<br><b>例句:</b> 1. 这是一首<b>特别</b>优美的歌。2. 我<b>专门</b>为你烤了这个蛋糕。",
+            "ku": "<b>Kúrdíska (Kurdî):</b><br><b>Ravekirin:</b> Gelek, zêdetir ji tiştên din. An jî ji bo sedemek taybetî hatiye kirin. (hoker)<br><b>Hevwate:</b> bi taybetî, bi taybet.<br><b>Dijwate:</b> bi giştî.<br><b>Mînak:</b> 1. Ev stranek <b>bi taybetî</b> xweş e. 2. Min ev kek <b>taybet</b> ji bo te çêkir.",
+            "lv": "<b>Lettneska (Latviešu):</b><br><b>Paskaidrojums:</b> Ļoti daudz, vairāk nekā cits, vai darīts noteiktam mērķim. (apstākļa vārds)<br><b>Sinonīmi:</b> īpaši, it sevišķi.<br><b>Antonīmi:</b> vispārīgi.<br><b>Piemēri:</b> 1. Šī ir <b>īpaši</b> skaista dziesma. 2. Es izcepu šo kūku <b>īpaši</b> tev.",
+            "lt": "<b>Litháíska (Lietuvių):</b><br><b>Paaiškinimas:</b> Labai daug, daugiau nei kiti, arba padaryta tam tikram tikslui. (prievezmis)<br><b>Sinonimai:</b> ypač, specialiai.<br><b>Antonimai:</b> apskritai, paprastai.<br><b>Pavyzdžiai:</b> 1. Tai <b>ypač</b> graži daina. 2. Iškepiau šį pyragą <b>specialiai</b> tau.",
+            "no": "<b>Norska (Norsk):</b><br><b>Forklaring:</b> Veldig mye, mer enn annet, eller noe gjort for en bestemt anledning. (adverb)<br><b>Synonymer:</b> spesielt, særlig.<br><b>Antonymer:</b> generelt, vanligvis.<br><b>Eksempler:</b> 1. Dette er en <b>spesielt</b> vakker sang. 2. Jeg bakte denne kaken <b>spesielt</b> for deg.",
+            "fa": "<div dir='rtl' style='text-align: right;'><b>Persneska (فارسی):</b><br><b>توضیح:</b> بسیار زیاد، بیشتر از چیزهای دیگر، یا انجام شده برای هدف خاص. (قید)<br><b>مترادف:</b> به‌ویژه، مخصوصاً.<br><b>متضاد:</b> عموماً، به‌طور کلی.<br><b>مثال:</b> 1. این یک آهنگ <b>به‌ویژه</b> زیبا است. 2. این کیک را <b>مخصوص</b> تو پختم.</div>",
+            "pt": "<b>Portúgalska (Português):</b><br><b>Explicação:</b> Muito, mais do que outras coisas, ou algo feito para uma ocasião específica. (advérbio)<br><b>Sinônimos:</b> particularmente, especialmente.<br><b>Antônimos:</b> geralmente.<br><b>Exemplos:</b> 1. Esta é uma música <b>especialmente</b> linda. 2. Eu assei este bolo <b>especialmente</b> para você.",
+            "pt-BR": "<b>Portúgalska - Brasilía (Português - Brasil):</b><br><b>Explicação:</b> Muito, mais do que outras coisas, ou algo feito para uma ocasião específica. (advérbio)<br><b>Sinônimos:</b> particularmente, especialmente.<br><b>Antônimos:</b> geralmente.<br><b>Exemplos:</b> 1. Esta é uma música <b>especialmente</b> linda. 2. Eu assei este bolo <b>especialmente</b> para você.",
+            "pl": "<b>Pólska (Polski):</b><br><b>Wyjaśnienie:</b> Bardzo, więcej niż inne rzeczy, lub zrobione z konkretnego powodu. (przysłówek)<br><b>Synonimy:</b> w szczególności, szczególnie, specjalnie.<br><b>Antonimy:</b> ogólnie, powszechnie.<br><b>Przykłady:</b> 1. To jest <b>szczególnie</b> piękna piosenka. 2. Upiekłem to ciasto <b>specjalnie</b> dla ciebie.",
+            "ro": "<b>Rúmenska (Română):</b><br><b>Explicație:</b> Foarte mult, sau ceva făcut cu un anumit scop. (adverb)<br><b>Sinonime:</b> în special, deosebit, special.<br><b>Antonime:</b> în general, de obicei.<br><b>Exemple:</b> 1. Acesta este un cântec <b>deosebit</b> de frumos. 2. Am copt acest tort <b>special</b> pentru tine.",
+            "ru": "<b>Rússneska (Русский):</b><br><b>Объяснение:</b> Очень много, больше чем другое, либо для конкретной цели. (наречие)<br><b>Синонимы:</b> в частности, особенно, специально.<br><b>Антонимы:</b> в общем, обычно.<br><b>Примеры:</b> 1. Это <b>особенно</b> красивая песня. 2. Я испек этот торт <b>специально</b> для тебя.",
+            "es": "<b>Spænska (Español):</b><br><b>Explicación:</b> Mucho, más que otras cosas, o algo hecho para una ocasión específica. (adverbio)<br><b>Sinónimos:</b> particularmente, especialmente.<br><b>Antónimos:</b> generalmente.<br><b>Ejemplos:</b> 1. Esta es una canción <b>especialmente</b> hermosa. 2. Horneé este pastel <b>especialmente</b> para ti.",
+            "sv": "<b>Sænska (Svenska):</b><br><b>Förklaring:</b> Mycket, mer än annat, eller något gjort för ett visst tillfälle. (adverb)<br><b>Synonymer:</b> i synnerhet, särskilt, speciellt.<br><b>Antonymer:</b> allmänt, generellt.<br><b>Exempel:</b> 1. Detta är en <b>särskilt</b> vacker låt. 2. Jag bakade den här tårtan <b>speciellt</b> för dig.",
+            "th": "<b>Tælenska (ภาษาไทย):</b><br><b>คำอธิบาย:</b> มาก มากกว่าสิ่งอื่น หรือทำขึ้นสำหรับโอกาสเฉพาะ (คำกริยาวิเศษณ์)<br><b>คำพ้องความหมาย:</b> โดยเฉพาะ, เป็นพิเศษ<br><b>คำตรงข้าม:</b> โดยทั่วไป<br><b>ตัวอย่าง:</b> 1. นี่เป็นเพลงที่ไพเราะ<b>เป็นพิเศษ</b> 2. ฉันอบเค้กนี้เพื่อคุณ<b>โดยเฉพาะ</b>",
+            "uk": "<b>Úkraínska (Українська):</b><br><b>Пояснення:</b> Дуже багато, або щось зроблене з певною метою. (прислівник)<br><b>Синоніми:</b> зокрема, особливо, спеціально.<br><b>Антоніми:</b> загалом, взагалі.<br><b>Приклади:</b> 1. Це <b>особливо</b> гарна пісня. 2. Я спік цей торт <b>спеціально</b> для тебе.",
+            "vi": "<b>Víetnamska (Tiếng Việt):</b><br><b>Giải thích:</b> Rất nhiều, hoặc một cái gì đó được làm cho một mục đích cụ thể. (trạng từ)<br><b>Từ đồng nghĩa:</b> đặc biệt, nhất là.<br><b>Từ trái nghĩa:</b> nhìn chung, nói chung.<br><b>Ví dụ:</b> 1. Đây là một bài hát <b>đặc biệt</b> hay. 2. Tôi làm chiếc bánh này <b>đặc biệt</b> cho bạn.",
+            "de": "<b>Þýska (Deutsch):</b><br><b>Erklärung:</b> Sehr viel, mehr als anderes, oder aus einem bestimmten Anlass. (Adverb)<br><b>Synonyme:</b> besonders, speziell.<br><b>Antonyme:</b> allgemein, generell.<br><b>Beispiele:</b> 1. Das ist ein <b>besonders</b> schönes Lied. 2. Ich habe diesen Kuchen <b>speziell</b> für dich gebacken."
+        }
+    },
+    { 
+        text: "heimild", 
+        is_exp: "<b>Útskýring:</b> Leyfi til að gera eitthvað. Einnig staður, bók eða rit sem upplýsingar koma frá. (nafnorð)<br><b>Samheiti:</b> leyfi, uppruni, gögn.<br><b>Dæmi:</b> 1. Þú þarft <b>heimild</b> frá kennaranum til að fara fyrr. 2. Þessi bók er góð <b>heimild</b> um Íslandssöguna.",
+        translations: {
+            "sq": "<b>Albanska (Shqip):</b><br><b>Shpjegimi:</b> Leje për të bërë diçka, ose një burim informacioni. (emër)<br><b>Sinonimet:</b> leje, autorizim, burim.<br><b>Shembuj:</b> 1. Të duhet <b>leja</b> nga mësuesi. 2. Ky libër është një <b>burim</b> i mirë.",
+            "ar": "<div dir='rtl' style='text-align: right;'><b>Arabíska (العربية):</b><br><b>الشرح:</b> الإذن بفعل شيء ما، أو مصدر المعلومات. (اسم)<br><b>مرادف:</b> تصريح، إذن، مصدر.<br><b>مثال:</b> 1. أنت بحاجة إلى <b>إذن</b> من المعلم. 2. هذا الكتاب <b>مصدر</b> جيد للتاريخ.</div>",
+            "da": "<b>Danska (Dansk):</b><br><b>Forklaring:</b> Tilladelse til noget, eller et sted information kommer fra. (navneord)<br><b>Synonymer:</b> tilladelse, lov, kilde.<br><b>Eksempler:</b> 1. Du har brug for <b>tilladelse</b> fra læreren. 2. Denne bog er en god <b>kilde</b> til historien.",
+            "et": "<b>Eistneska (Eesti):</b><br><b>Selgitus:</b> Luba millegi tegemiseks või infoallikas. (nimisõna)<br><b>Sünonüümid:</b> luba, nõusolek, allikas.<br><b>Näited:</b> 1. Sul on vaja õpetaja <b>luba</b>. 2. See raamat on hea <b>allikas</b>.",
+            "en": "<b>Enska (English):</b><br><b>Explanation:</b> Permission to do something, or a source of information (book, article). (noun)<br><b>Synonyms:</b> consent, authorization, source, reference.<br><b>Examples:</b> 1. You need <b>permission</b> from the teacher. 2. This book is a good <b>source</b> for the history.",
+            "tl": "<b>Filippseyska (Tagalog):</b><br><b>Paliwanag:</b> Pahintulot na gumawa ng isang bagay, o pinagmulan ng impormasyon. (pangngalan)<br><b>Kasingkahulugan:</b> permiso, pahintulot, batayan, pinagmulan.<br><b>Halimbawa:</b> 1. Kailangan mo ng <b>pahintulot</b> mula sa guro. 2. Ang aklat na ito ay isang magandang <b>mapagkukunan</b>.",
+            "fr": "<b>Franska (Français):</b><br><b>Explication:</b> Permission de faire quelque chose, ou une source d'information. (nom)<br><b>Synonymes:</b> autorisation, permission, source.<br><b>Exemples:</b> 1. Tu as besoin d'une <b>autorisation</b> du professeur. 2. Ce livre est une bonne <b>source</b> d'histoire.",
+            "it": "<b>Ítalska (Italiano):</b><br><b>Spiegazione:</b> Permesso di fare qualcosa, o una fonte di informazioni. (sostantivo)<br><b>Sinonimi:</b> permesso, autorizzazione, fonte.<br><b>Esempi:</b> 1. Hai bisogno del <b>permesso</b> dell'insegnante. 2. Questo libro è una buona <b>fonte</b>.",
+            "zh": "<b>Kínverska (中文):</b><br><b>解释:</b> 做某事的许可，或信息的来源。 (名词)<br><b>同义词:</b> 许可, 授权, 来源。<br><b>例句:</b> 1. 你需要得到老师的<b>许可</b>。2. 这本书是很好的历史<b>来源</b>。",
+            "ku": "<b>Kúrdíska (Kurdî):</b><br><b>Ravekirin:</b> Destûr, an jî çavkaniya agahiyan. (navdêr)<br><b>Hevwate:</b> destûr, çavkanî.<br><b>Mînak:</b> 1. Pêdiviya te bi <b>destûr</b>a mamoste heye. 2. Ev pirtûk <b>çavkaniyek</b> baş e.",
+            "lv": "<b>Lettneska (Latviešu):</b><br><b>Paskaidrojums:</b> Atļauja kaut ko darīt, vai informācijas avots. (lietvārds)<br><b>Sinonīmi:</b> atļauja, pilnvara, avots.<br><b>Piemēri:</b> 1. Tev nepieciešama <b>atļauja</b> no skolotāja. 2. Šī grāmata ir labs <b>avots</b> vēsturei.",
+            "lt": "<b>Litháíska (Lietuvių):</b><br><b>Paaiškinimas:</b> Leidimas kažką daryti, arba informacijos šaltinis. (daiktavardis)<br><b>Sinonimai:</b> sutikimas, leidimas, šaltinis.<br><b>Pavyzdžiai:</b> 1. Tau reikia mokytojo <b>leidimo</b>. 2. Ši knyga yra geras istorijos <b>šaltinis</b>.",
+            "no": "<b>Norska (Norsk):</b><br><b>Forklaring:</b> Tillatelse til å gjøre noe, eller en kilde til informasjon. (substantiv)<br><b>Synonymer:</b> tillatelse, godkjennelse, kilde.<br><b>Eksempler:</b> 1. Du trenger <b>tillatelse</b> fra læreren. 2. Denne boken er en god <b>kilde</b> om historien.",
+            "fa": "<div dir='rtl' style='text-align: right;'><b>Persneska (فارسی):</b><br><b>توضیح:</b> اجازه برای انجام کاری، یا منبع اطلاعات. (اسم)<br><b>مترادف:</b> مجوز، اجازه، منبع.<br><b>مثال:</b> 1. شما به <b>اجازه</b> از معلم نیاز دارید. 2. این کتاب <b>منبع</b> خوبی برای تاریخ است.</div>",
+            "pt": "<b>Portúgalska (Português):</b><br><b>Explicação:</b> Permissão para fazer algo, ou fonte de informação. (substantivo)<br><b>Sinônimos:</b> autorização, permissão, fonte.<br><b>Exemplos:</b> 1. Você precisa de <b>permissão</b> do professor. 2. Este livro é uma boa <b>fonte</b> para a história.",
+            "pt-BR": "<b>Portúgalska - Brasilía (Português - Brasil):</b><br><b>Explicação:</b> Permissão para fazer algo, ou fonte de informação. (substantivo)<br><b>Sinônimos:</b> autorização, permissão, fonte.<br><b>Exemplos:</b> 1. Você precisa da <b>permissão</b> do professor. 2. Este livro é uma boa <b>fonte</b> para a história.",
+            "pl": "<b>Pólska (Polski):</b><br><b>Wyjaśnienie:</b> Pozwolenie na zrobienie czegoś, lub źródło informacji. (rzeczownik)<br><b>Synonimy:</b> zgoda, pozwolenie, źródło.<br><b>Przykłady:</b> 1. Potrzebujesz <b>pozwolenia</b> od nauczyciela. 2. Ta książka to dobre <b>źródło</b> historii.",
+            "ro": "<b>Rúmenska (Română):</b><br><b>Explicație:</b> Permisiunea de a face ceva, sau o sursă de informații. (substantiv)<br><b>Sinonime:</b> autorizație, permisiune, sursă.<br><b>Exemple:</b> 1. Ai nevoie de <b>permisiunea</b> profesorului. 2. Această carte este o <b>sursă</b> bună.",
+            "ru": "<b>Rússneska (Русский):</b><br><b>Объяснение:</b> Разрешение что-то сделать, либо источник информации. (существительное)<br><b>Синонимы:</b> согласие, разрешение, источник.<br><b>Примеры:</b> 1. Тебе нужно <b>разрешение</b> от учителя. 2. Эта книга - хороший <b>источник</b> истории.",
+            "es": "<b>Spænska (Español):</b><br><b>Explicación:</b> Permiso para hacer algo, o una fuente de información. (sustantivo)<br><b>Sinónimos:</b> autorización, permiso, fuente.<br><b>Ejemplos:</b> 1. Necesitas <b>permiso</b> del profesor. 2. Este libro es una buena <b>fuente</b> sobre la historia.",
+            "sv": "<b>Sænska (Svenska):</b><br><b>Förklaring:</b> Tillåtelse att göra något, eller en informationskälla. (substantiv)<br><b>Synonymer:</b> tillstånd, lov, källa.<br><b>Exempel:</b> 1. Du behöver <b>tillstånd</b> från läraren. 2. Den här boken är en bra <b>källa</b> om historien.",
+            "th": "<b>Tælenska (ภาษาไทย):</b><br><b>คำอธิบาย:</b> การอนุญาตให้ทำบางสิ่ง หรือแหล่งที่มาของข้อมูล (คำนาม)<br><b>คำพ้องความหมาย:</b> ความยินยอม, การอนุญาต, แหล่งข้อมูล<br><b>ตัวอย่าง:</b> 1. คุณต้องได้รับ<b>อนุญาต</b>จากครู 2. หนังสือเล่มนี้เป็น<b>แหล่งข้อมูล</b>ที่ดี",
+            "uk": "<b>Úkraínska (Українська):</b><br><b>Пояснення:</b> Дозвіл щось зробити, або джерело інформації. (іменник)<br><b>Синоніми:</b> згода, дозвіл, джерело.<br><b>Приклади:</b> 1. Тобі потрібен <b>дозвіл</b> від вчителя. 2. Ця книга є хорошим <b>джерелом</b>.",
+            "vi": "<b>Víetnamska (Tiếng Việt):</b><br><b>Giải thích:</b> Sự cho phép để làm điều gì đó, hoặc nguồn thông tin. (danh từ)<br><b>Từ đồng nghĩa:</b> giấy phép, sự cho phép, nguồn.<br><b>Ví dụ:</b> 1. Bạn cần sự <b>cho phép</b> của giáo viên. 2. Cuốn sách này là một <b>nguồn</b> lịch sử tốt.",
+            "de": "<b>Þýska (Deutsch):</b><br><b>Erklärung:</b> Die Erlaubnis, etwas zu tun, oder eine Informationsquelle. (Substantiv)<br><b>Synonyme:</b> Erlaubnis, Genehmigung, Quelle.<br><b>Beispiele:</b> 1. Du brauchst die <b>Erlaubnis</b> des Lehrers. 2. Dieses Buch ist eine gute <b>Quelle</b> für die Geschichte."
+        }
+    },
+    { 
+        text: "greina", 
+        is_exp: "<b>Útskýring:</b> Að skoða eitthvað mjög vel, að þekkja í sundur eða að segja frá einhverju. (sagnorð)<br><b>Samheiti:</b> rannsaka, skoða, aðgreina, segja frá.<br><b>Dæmi:</b> 1. Við ætlum að <b>greina</b> orðin í textanum. 2. Ég get ekki <b>greint</b> á milli þeirra. 3. Fréttirnar <b>greindu</b> frá slysinu.",
+        translations: {
+            "sq": "<b>Albanska (Shqip):</b><br><b>Shpjegimi:</b> Të shqyrtosh diçka, të dallosh ose të raportosh. (folje)<br><b>Sinonimet:</b> analizoj, dalloj, raportoj.<br><b>Shembuj:</b> 1. Ne do të <b>analizojmë</b> fjalët. 2. Nuk mund t'i <b>dalloj</b>. 3. Lajmet <b>raportuan</b> aksidentin.",
+            "ar": "<div dir='rtl' style='text-align: right;'><b>Arabíska (العربية):</b><br><b>الشرح:</b> فحص شيء ما بعناية، التمييز، أو الإبلاغ عن شيء. (فعل)<br><b>مرادف:</b> دراسة، تحليل، تمييز، إبلاغ.<br><b>مثال:</b> 1. سنقوم <b>بتحليل</b> الكلمات. 2. لا أستطيع <b>التمييز</b> بينهما. 3. <b>أبلغت</b> الأخبار عن الحادث.</div>",
+            "da": "<b>Danska (Dansk):</b><br><b>Forklaring:</b> At undersøge noget nøje, at kende forskel, eller at fortælle/rapportere. (udsagnsord)<br><b>Synonymer:</b> analysere, undersøge, skelne, rapportere.<br><b>Eksempler:</b> 1. Vi skal <b>analysere</b> ordene. 2. Jeg kan ikke <b>skelne</b> mellem dem. 3. Nyhederne <b>rapporterede</b> om ulykken.",
+            "et": "<b>Eistneska (Eesti):</b><br><b>Selgitus:</b> Midagi uurida, eristada või millestki teatada. (tegusõna)<br><b>Sünonüümid:</b> analüüsida, eristada, teatada.<br><b>Näited:</b> 1. Me <b>analüüsime</b> sõnu. 2. Ma ei suuda neid <b>eristada</b>. 3. Uudised <b>teatasid</b> õnnetusest.",
+            "en": "<b>Enska (English):</b><br><b>Explanation:</b> To look at something closely, to distinguish between things, or to report. (verb)<br><b>Synonyms:</b> analyze, investigate, distinguish, report.<br><b>Examples:</b> 1. We will <b>analyze</b> the words. 2. I can't <b>distinguish</b> between them. 3. The news <b>reported</b> the accident.",
+            "tl": "<b>Filippseyska (Tagalog):</b><br><b>Paliwanag:</b> Suriin nang mabuti, tukuyin ang pagkakaiba, o iulat. (pandiwa)<br><b>Kasingkahulugan:</b> suriin, imbestigahan, kilalanin, ibalita.<br><b>Halimbawa:</b> 1. <b>Susuriin</b> natin ang mga salita. 2. Hindi ko sila <b>makilala</b> (ang kaibhan). 3. <b>Iniulat</b> ng balita ang aksidente.",
+            "fr": "<b>Franska (Français):</b><br><b>Explication:</b> Examiner de très près, distinguer des choses, ou rapporter. (verbe)<br><b>Synonymes:</b> analyser, examiner, distinguer, rapporter.<br><b>Exemples:</b> 1. Nous allons <b>analyser</b> les mots. 2. Je ne peux pas <b>distinguer</b> entre eux. 3. Les nouvelles ont <b>rapporté</b> l'accident.",
+            "it": "<b>Ítalska (Italiano):</b><br><b>Spiegazione:</b> Esaminare qualcosa da vicino, distinguere tra cose o riferire. (verbo)<br><b>Sinonimi:</b> analizzare, distinguere, riportare.<br><b>Esempi:</b> 1. <b>Analizzeremo</b> le parole. 2. Non riesco a <b>distinguerli</b>. 3. Le notizie hanno <b>riportato</b> l'incidente.",
+            "zh": "<b>Kínverska (中文):</b><br><b>解释:</b> 仔细检查（分析），区分事物，或报告。 (动词)<br><b>同义词:</b> 分析, 区分, 报告。<br><b>例句:</b> 1. 我们要<b>分析</b>这些单词。2. 我无法<b>区分</b>它们。3. 新闻<b>报道</b>了这起事故。",
+            "ku": "<b>Kúrdíska (Kurdî):</b><br><b>Ravekirin:</b> Bi baldarî lêkolîn kirin, ji hev cuda kirin, an ragihandin. (lêker)<br><b>Hevwate:</b> analîz kirin, cuda kirin, ragihandin.<br><b>Mînak:</b> 1. Em ê peyvan <b>analîz bikin</b>. 2. Ez nikarim wan <b>ji hev cuda bikim</b>. 3. Nûçeyan qeza <b>ragihand</b>.",
+            "lv": "<b>Lettneska (Latviešu):</b><br><b>Paskaidrojums:</b> Rūpīgi pētīt, atšķirt vai ziņot. (darbības vārds)<br><b>Sinonīmi:</b> izpētīt, analizēt, atšķirt, ziņot.<br><b>Piemēri:</b> 1. Mēs <b>analizēsim</b> vārdus. 2. Es nespēju viņus <b>atšķirt</b>. 3. Ziņas <b>vēstīja</b> par negadījumu.",
+            "lt": "<b>Litháíska (Lietuvių):</b><br><b>Paaiškinimas:</b> Atidžiai tirti, analizuoti, atskirti arba pranešti. (veiksmažodis)<br><b>Sinonimai:</b> analizuoti, atskirti, pranešti.<br><b>Pavyzdžiai:</b> 1. Mes <b>analizuosime</b> žodžius. 2. Aš negaliu jų <b>atskirti</b>. 3. Žinios <b>pranešė</b> apie avariją.",
+            "no": "<b>Norska (Norsk):</b><br><b>Forklaring:</b> Å undersøke noe nøye, skille mellom ting, eller rapportere. (verb)<br><b>Synonymer:</b> analysere, studere, skille, rapportere.<br><b>Eksempler:</b> 1. Vi skal <b>analysere</b> ordene. 2. Jeg kan ikke <b>skille</b> mellom dem. 3. Nyhetene <b>rapporterte</b> om ulykken.",
+            "fa": "<div dir='rtl' style='text-align: right;'><b>Persneska (فارسی):</b><br><b>توضیح:</b> بررسی دقیق، تشخیص دادن، یا گزارش دادن. (فعل)<br><b>مترادف:</b> تحلیل کردن، تشخیص دادن، گزارش دادن.<br><b>مثال:</b> 1. کلمات را <b>تحلیل</b> می‌کنیم. 2. نمی‌توانم بین آنها <b>تمایز</b> قائل شوم. 3. اخبار تصادف را <b>گزارش</b> داد.</div>",
+            "pt": "<b>Portúgalska (Português):</b><br><b>Explicação:</b> Olhar de perto, analisar, distinguir, ou relatar. (verbo)<br><b>Sinônimos:</b> analisar, distinguir, relatar.<br><b>Exemplos:</b> 1. Vamos <b>analisar</b> as palavras. 2. Não consigo <b>distinguir</b> entre eles. 3. As notícias <b>relataram</b> o acidente.",
+            "pt-BR": "<b>Portúgalska - Brasilía (Português - Brasil):</b><br><b>Explicação:</b> Olhar de perto, analisar, distinguir, ou relatar. (verbo)<br><b>Sinônimos:</b> analisar, distinguir, relatar.<br><b>Exemplos:</b> 1. Vamos <b>analisar</b> as palavras. 2. Não consigo <b>distinguir</b> entre eles. 3. As notícias <b>relataram</b> o acidente.",
+            "pl": "<b>Pólska (Polski):</b><br><b>Wyjaśnienie:</b> Badać coś uważnie (analizować), odróżniać, lub relacjonować. (czasownik)<br><b>Synonimy:</b> analizować, odróżniać, donosić.<br><b>Przykłady:</b> 1. <b>Przeanalizujemy</b> słowa. 2. Nie potrafię ich <b>odróżnić</b>. 3. Wiadomości <b>doniosły</b> o wypadku.",
+            "ro": "<b>Rúmenska (Română):</b><br><b>Explicație:</b> A analiza atent, a distinge, sau a relata. (verb)<br><b>Sinonime:</b> a analiza, a distinge, a raporta.<br><b>Exemple:</b> 1. Vom <b>analiza</b> cuvintele. 2. Nu pot <b>distinge</b> între ei. 3. Știrile au <b>relatat</b> despre accident.",
+            "ru": "<b>Rússneska (Русский):</b><br><b>Объяснение:</b> Внимательно изучить, различать, или сообщать. (глагол)<br><b>Синонимы:</b> анализировать, различать, сообщать.<br><b>Примеры:</b> 1. Мы <b>проанализируем</b> слова. 2. Я не могу <b>различить</b> их. 3. В новостях <b>сообщили</b> об аварии.",
+            "es": "<b>Spænska (Español):</b><br><b>Explicación:</b> Mirar de cerca, analizar, distinguir, o reportar. (verbo)<br><b>Sinónimos:</b> analizar, distinguir, informar.<br><b>Ejemplos:</b> 1. Vamos a <b>analizar</b> las palabras. 2. No puedo <b>distinguir</b> entre ellos. 3. Las noticias <b>informaron</b> del accidente.",
+            "sv": "<b>Sænska (Svenska):</b><br><b>Förklaring:</b> Att undersöka noga (analysera), skilja på saker, eller rapportera. (verb)<br><b>Synonymer:</b> analysera, särskilja, rapportera.<br><b>Exempel:</b> 1. Vi ska <b>analysera</b> orden. 2. Jag kan inte <b>skilja</b> mellan dem. 3. Nyheterna <b>rapporterade</b> om olyckan.",
+            "th": "<b>Tælenska (ภาษาไทย):</b><br><b>คำอธิบาย:</b> วิเคราะห์อย่างละเอียด แยกแยะ หรือรายงาน (คำกริยา)<br><b>คำพ้องความหมาย:</b> วิเคราะห์, แยกแยะ, รายงาน<br><b>ตัวอย่าง:</b> 1. เราจะ<b>วิเคราะห์</b>คำศัพท์ 2. ฉันไม่สามารถ<b>แยกแยะ</b>พวกเขาได้ 3. ข่าว<b>รายงาน</b>อุบัติเหตุ",
+            "uk": "<b>Úkraínska (Українська):</b><br><b>Пояснення:</b> Уважно розглядати (аналізувати), розрізняти, або повідомляти. (дієслово)<br><b>Синоніми:</b> аналізувати, розрізняти, повідомляти.<br><b>Приклади:</b> 1. Ми <b>проаналізуємо</b> слова. 2. Я не можу їх <b>розрізнити</b>. 3. Новини <b>повідомили</b> про аварію.",
+            "vi": "<b>Víetnamska (Tiếng Việt):</b><br><b>Giải thích:</b> Phân tích kỹ, phân biệt, hoặc báo cáo. (động từ)<br><b>Từ đồng nghĩa:</b> phân tích, phân biệt, báo cáo.<br><b>Ví dụ:</b> 1. Chúng tôi sẽ <b>phân tích</b> các từ. 2. Tôi không thể <b>phân biệt</b> chúng. 3. Tin tức đã <b>đưa tin</b> về vụ tai nạn.",
+            "de": "<b>Þýska (Deutsch):</b><br><b>Erklärung:</b> Etwas genau betrachten (analysieren), unterscheiden oder berichten. (Verb)<br><b>Synonyme:</b> analysieren, unterscheiden, berichten.<br><b>Beispiele:</b> 1. Wir werden die Wörter <b>analysieren</b>. 2. Ich kann sie nicht <b>unterscheiden</b>. 3. Die Nachrichten <b>berichteten</b> über den Unfall."
+        }
+    },
+    { 
+        text: "jafnvel", 
+        is_exp: "<b>Útskýring:</b> Líka, meira að segja. Oft notað til að sýna undrun eða áherslu. (atviksorð)<br><b>Samheiti:</b> til og með.<br><b>Andheiti:</b> ekki einu sinni.<br><b>Dæmi:</b> Hann spilar á gítar og syngur <b>jafnvel</b> líka.",
+        translations: {
+            "sq": "<b>Albanska (Shqip):</b><br><b>Shpjegimi:</b> Gjithashtu, deri dhe. Përdoret për të theksuar diçka. (ndajfolje)<br><b>Sinonimet:</b> madje, edhe.<br><b>Antonimet:</b> as që.<br><b>Shembuj:</b> Ai i bie kitarës dhe <b>madje</b> edhe këndon.",
+            "ar": "<div dir='rtl' style='text-align: right;'><b>Arabíska (العربية):</b><br><b>الشرح:</b> أيضاً، حتى. يستخدم للتعجب أو التأكيد. (ظرف)<br><b>مرادف:</b> بما في ذلك، حتى.<br><b>مضاد:</b> ولا حتى.<br><b>مثال:</b> هو يعزف على الجيتار و<b>حتى</b> يغني أيضاً.</div>",
+            "da": "<b>Danska (Dansk):</b><br><b>Forklaring:</b> Også, til og med. Bruges for at vise overraskelse/vægt. (biord)<br><b>Synonymer:</b> inklusive, endda.<br><b>Antonymer:</b> ikke engang.<br><b>Eksempel:</b> Han spiller guitar og synger <b>endda</b> også.",
+            "et": "<b>Eistneska (Eesti):</b><br><b>Selgitus:</b> Ka, isegi. Kasutatakse rõhutamiseks. (määrsõna)<br><b>Sünonüümid:</b> sealhulgas, isegi.<br><b>Antonüümid:</b> mitte isegi.<br><b>Näide:</b> Ta mängib kitarri ja <b>isegi</b> laulab.",
+            "en": "<b>Enska (English):</b><br><b>Explanation:</b> Also, even. Used to show surprise or emphasis. (adverb)<br><b>Synonyms:</b> including, even.<br><b>Antonyms:</b> not even.<br><b>Example:</b> He plays the guitar and <b>even</b> sings too.",
+            "tl": "<b>Filippseyska (Tagalog):</b><br><b>Paliwanag:</b> Gayundin, ginagamit upang magpakita ng pagkagulat o diin. (pang-abay)<br><b>Kasingkahulugan:</b> kabilang, kahit.<br><b>Kasalungat:</b> ni hindi.<br><b>Halimbawa:</b> Tumutugtog siya ng gitara at <b>kahit</b> kumakanta rin.",
+            "fr": "<b>Franska (Français):</b><br><b>Explication:</b> Aussi, même. Utilisé pour souligner ou montrer la surprise. (adverbe)<br><b>Synonymes:</b> y compris, même.<br><b>Antonymes:</b> pas même.<br><b>Exemple:</b> Il joue de la guitare et chante <b>même</b> aussi.",
+            "it": "<b>Ítalska (Italiano):</b><br><b>Spiegazione:</b> Anche, persino. Usato per mostrare sorpresa o enfasi. (avverbio)<br><b>Sinonimi:</b> compreso, persino.<br><b>Antonimi:</b> nemmeno.<br><b>Esempio:</b> Suona la chitarra e <b>persino</b> canta.",
+            "zh": "<b>Kínverska (中文):</b><br><b>解释:</b> 也，甚至。常用于表示惊讶或强调。 (副词)<br><b>同义词:</b> 包括, 甚至。<br><b>反义词:</b> 甚至不。<br><b>例句:</b> 他弹吉他，<b>甚至</b>还唱歌。",
+            "ku": "<b>Kúrdíska (Kurdî):</b><br><b>Ravekirin:</b> Jî, hetta. Ji bo tekîdkirinê tê bikar anîn. (hoker)<br><b>Hevwate:</b> hetta.<br><b>Dijwate:</b> ne jî.<br><b>Mînak:</b> Ew li gîtarê dixe û <b>hetta</b> distirê jî.",
+            "lv": "<b>Lettneska (Latviešu):</b><br><b>Paskaidrojums:</b> Arī, pat. Lieto, lai uzsvērtu vai parādītu pārsteigumu. (apstākļa vārds)<br><b>Sinonīmi:</b> ieskaitot, pat.<br><b>Antonīmi:</b> pat ne.<br><b>Piemērs:</b> Viņš spēlē ģitāru un <b>pat</b> dzied.",
+            "lt": "<b>Litháíska (Lietuvių):</b><br><b>Paaiškinimas:</b> Taip pat, net. Naudojama pabrėžimui ar nuostabai. (prievezmis)<br><b>Sinonimai:</b> įskaitant, net.<br><b>Antonimai:</b> net ne.<br><b>Pavyzdžiai:</b> Jis groja gitara ir <b>net</b> dainuoja.",
+            "no": "<b>Norska (Norsk):</b><br><b>Forklaring:</b> Også, til og med. Brukes ofte for å vektlegge. (adverb)<br><b>Synonymer:</b> inklusive, endog.<br><b>Antonymer:</b> ikke engang.<br><b>Eksempel:</b> Han spiller gitar og synger <b>til og med</b> også.",
+            "fa": "<div dir='rtl' style='text-align: right;'><b>Persneska (فارسی):</b><br><b>توضیح:</b> همچنین، حتی. برای تاکید استفاده می‌شود. (قید)<br><b>مترادف:</b> از جمله، حتی.<br><b>متضاد:</b> حتی نه.<br><b>مثال:</b> او گیتار می‌نوازد و <b>حتی</b> آواز هم می‌خواند.</div>",
+            "pt": "<b>Portúgalska (Português):</b><br><b>Explicação:</b> Também, até mesmo. Usado para dar ênfase. (advérbio)<br><b>Sinônimos:</b> incluindo, até.<br><b>Antônimos:</b> nem mesmo.<br><b>Exemplo:</b> Ele toca violão e <b>até mesmo</b> canta também.",
+            "pt-BR": "<b>Portúgalska - Brasilía (Português - Brasil):</b><br><b>Explicação:</b> Também, até mesmo. Usado para dar ênfase. (advérbio)<br><b>Sinônimos:</b> incluindo, até.<br><b>Antônimos:</b> nem mesmo.<br><b>Exemplo:</b> Ele toca violão e <b>até mesmo</b> canta também.",
+            "pl": "<b>Pólska (Polski):</b><br><b>Wyjaśnienie:</b> Także, nawet. Używane dla podkreślenia. (przysłówek)<br><b>Synonimy:</b> włącznie, nawet.<br><b>Antonimy:</b> nawet nie.<br><b>Przykład:</b> On gra na gitarze, a <b>nawet</b> śpiewa.",
+            "ro": "<b>Rúmenska (Română):</b><br><b>Explicație:</b> De asemenea, chiar. Folosit pentru a accentua. (adverb)<br><b>Sinonime:</b> inclusiv, chiar.<br><b>Antonime:</b> nici măcar.<br><b>Exemplu:</b> El cântă la chitară și <b>chiar</b> cântă cu vocea.",
+            "ru": "<b>Rússneska (Русский):</b><br><b>Объяснение:</b> Также, даже. Используется для подчеркивания. (наречие)<br><b>Синонимы:</b> включая, даже.<br><b>Антонимы:</b> даже не.<br><b>Пример:</b> Он играет на гитаре и <b>даже</b> поет.",
+            "es": "<b>Spænska (Español):</b><br><b>Explicación:</b> También, incluso. Usado para enfatizar. (adverbio)<br><b>Sinónimos:</b> incluyendo, incluso.<br><b>Antónimos:</b> ni siquiera.<br><b>Ejemplo:</b> Él toca la guitarra e <b>incluso</b> canta también.",
+            "sv": "<b>Sænska (Svenska):</b><br><b>Förklaring:</b> Också, till och med. Används för betoning. (adverb)<br><b>Synonymer:</b> inklusive, till och med.<br><b>Antonymer:</b> inte ens.<br><b>Exempel:</b> Han spelar gitarr och sjunger <b>till och med</b> också.",
+            "th": "<b>Tælenska (ภาษาไทย):</b><br><b>คำอธิบาย:</b> ด้วย, แม้กระทั่ง (ใช้เพื่อเน้นย้ำหรือแสดงความประหลาดใจ) (คำกริยาวิเศษณ์)<br><b>คำพ้องความหมาย:</b> รวมไปถึง, แม้กระทั่ง<br><b>คำตรงข้าม:</b> ไม่แม้แต่<br><b>ตัวอย่าง:</b> เขาเล่นกีตาร์และ<b>แม้กระทั่ง</b>ร้องเพลงด้วย",
+            "uk": "<b>Úkraínska (Українська):</b><br><b>Пояснення:</b> Також, навіть. Використовується для наголосу. (прислівник)<br><b>Синоніми:</b> включаючи, навіть.<br><b>Антоніми:</b> навіть не.<br><b>Приклад:</b> Він грає на гітарі і <b>навіть</b> співає.",
+            "vi": "<b>Víetnamska (Tiếng Việt):</b><br><b>Giải thích:</b> Cũng, thậm chí. Được dùng để nhấn mạnh. (trạng từ)<br><b>Từ đồng nghĩa:</b> bao gồm, thậm chí.<br><b>Từ trái nghĩa:</b> thậm chí không.<br><b>Ví dụ:</b> Anh ấy chơi guitar và <b>thậm chí</b> còn hát nữa.",
+            "de": "<b>Þýska (Deutsch):</b><br><b>Erklärung:</b> Auch, sogar. Oft zur Betonung verwendet. (Adverb)<br><b>Synonyme:</b> einschließlich, sogar.<br><b>Antonyme:</b> nicht einmal.<br><b>Beispiel:</b> Er spielt Gitarre und singt <b>sogar</b>."
+        }
+    },
+    { 
+        text: "tengja", 
+        is_exp: "<b>Útskýring:</b> Að setja eitthvað saman svo það virki (t.d. snúrur). Einnig að finna andlega tengingu við fólk eða hugmyndir. (sagnorð)<br><b>Samheiti:</b> sameina, setja í samband.<br><b>Andheiti:</b> slíta, aftengja, aðskilja.<br><b>Dæmi:</b> 1. Viltu <b>tengja</b> tölvuna við netið? 2. Ég á erfitt með að <b>tengja</b> við þessa bók.",
+        translations: {
+            "sq": "<b>Albanska (Shqip):</b><br><b>Shpjegimi:</b> Të bashkosh gjëra, ose të lidhesh emocionalisht. (folje)<br><b>Sinonimet:</b> lidh, bashkoj.<br><b>Antonimet:</b> shkëput, ndaj.<br><b>Shembuj:</b> 1. A dëshiron të <b>lidhësh</b> kompjuterin? 2. E kam të vështirë të <b>lidhem</b> me këtë libër.",
+            "ar": "<div dir='rtl' style='text-align: right;'><b>Arabíska (العربية):</b><br><b>الشرح:</b> تجميع شيء ما ليعمل، أو الارتباط بأفكار وأشخاص. (فعل)<br><b>مرادف:</b> ربط، توصيل.<br><b>مضاد:</b> فصل، قطع.<br><b>مثال:</b> 1. هل تريد <b>توصيل</b> الكمبيوتر؟ 2. أجد صعوبة في <b>الارتباط</b> بهذا الكتاب.</div>",
+            "da": "<b>Danska (Dansk):</b><br><b>Forklaring:</b> At sætte noget sammen, eller at relatere til ideer/folk. (udsagnsord)<br><b>Synonymer:</b> forbinde, tilslutte, relatere.<br><b>Antonymer:</b> afbryde, adskille.<br><b>Eksempler:</b> 1. Vil du <b>tilslutte</b> computeren? 2. Jeg har svært ved at <b>relatere</b> til bogen.",
+            "et": "<b>Eistneska (Eesti):</b><br><b>Selgitus:</b> Asju ühendada või ideedega samastuda. (tegusõna)<br><b>Sünonüümid:</b> ühendada, samastuda.<br><b>Antonüümid:</b> lahti ühendada, eraldada.<br><b>Näited:</b> 1. Kas sa tahad arvuti <b>ühendada</b>? 2. Mul on raske selle raamatuga <b>samastuda</b>.",
+            "en": "<b>Enska (English):</b><br><b>Explanation:</b> To connect things so they work, or to relate to people/ideas. (verb)<br><b>Synonyms:</b> link, connect, relate.<br><b>Antonyms:</b> disconnect, separate.<br><b>Examples:</b> 1. Do you want to <b>connect</b> the computer? 2. I have a hard time <b>relating</b> to this book.",
+            "tl": "<b>Filippseyska (Tagalog):</b><br><b>Paliwanag:</b> Pagsamahin ang mga bagay, o iugnay ang sarili sa tao/ideya. (pandiwa)<br><b>Kasingkahulugan:</b> iugnay, ikonekta, makaugnay.<br><b>Kasalungat:</b> idiskonekta, paghiwalayin.<br><b>Halimbawa:</b> 1. <b>Ikonekta</b> ang computer. 2. Nahihirapan akong <b>makaugnay</b> sa aklat na ito.",
+            "fr": "<b>Franska (Français):</b><br><b>Explication:</b> Mettre quelque chose ensemble pour que ça marche, ou se lier à des idées. (verbe)<br><b>Synonymes:</b> relier, connecter, s'identifier.<br><b>Antonymes:</b> déconnecter, séparer.<br><b>Exemples:</b> 1. Veux-tu <b>connecter</b> l'ordinateur ? 2. J'ai du mal à <b>accrocher</b> à ce livre.",
+            "it": "<b>Ítalska (Italiano):</b><br><b>Spiegazione:</b> Collegare le cose in modo che funzionino, o relazionarsi. (verbo)<br><b>Sinonimi:</b> collegare, connettere, relazionarsi.<br><b>Antonimi:</b> disconnettere, separare.<br><b>Esempi:</b> 1. Vuoi <b>collegare</b> il computer? 2. Faccio fatica a <b>connettermi</b> con questo libro.",
+            "zh": "<b>Kínverska (中文):</b><br><b>解释:</b> 把事物连接在一起，或与人/想法产生共鸣。 (动词)<br><b>同义词:</b> 连接, 联系, 共鸣。<br><b>反义词:</b> 断开, 分离。<br><b>例句:</b> 1. 你想<b>连接</b>电脑吗？ 2. 我很难对这本书产生<b>共鸣</b>。",
+            "ku": "<b>Kúrdíska (Kurdî):</b><br><b>Ravekirin:</b> Têkiliya tiştan an hest bi mirovan/ramanan. (lêker)<br><b>Hevwate:</b> girêdan, têkilî danîn.<br><b>Dijwate:</b> veqetandin, qut kirin.<br><b>Mînak:</b> 1. Ma tu dixwazî ​​kompîturê <b>girêbidî</b>? 2. Ji min re zehmet e ku bi vî pirtûkê re <b>têkilî daynim</b>.",
+            "lv": "<b>Lettneska (Latviešu):</b><br><b>Paskaidrojums:</b> Savienot kaut ko fiziski vai just saikni ar idejām. (darbības vārds)<br><b>Sinonīmi:</b> saistīt, savienot, asociēt.<br><b>Antonīmi:</b> atvienot, atdalīt.<br><b>Piemēri:</b> 1. Vai vēlaties <b>pievienot</b> datoru? 2. Man ir grūti <b>saistīties</b> ar šo grāmatu.",
+            "lt": "<b>Litháíska (Lietuvių):</b><br><b>Paaiškinimas:</b> Sujungti kažką, kad veiktų, arba susitapatinti. (veiksmažodis)<br><b>Sinonimai:</b> susieti, prijungti, susitapatinti.<br><b>Antonimai:</b> atjungti, atskirti.<br><b>Pavyzdžiai:</b> 1. Ar nori <b>prijungti</b> kompiuterį? 2. Man sunku <b>susitapatinti</b> su šia knyga.",
+            "no": "<b>Norska (Norsk):</b><br><b>Forklaring:</b> Å koble noe sammen, eller relatere til ideer/folk. (verb)<br><b>Synonymer:</b> forbinde, koble til, relatere.<br><b>Antonymer:</b> koble fra, adskille.<br><b>Eksempler:</b> 1. Vil du <b>koble til</b> datamaskinen? 2. Jeg har vanskelig for å <b>relatere</b> til denne boka.",
+            "fa": "<div dir='rtl' style='text-align: right;'><b>Persneska (فارسی):</b><br><b>توضیح:</b> وصل کردن چیزی، یا ارتباط ذهنی با افراد و ایده‌ها. (فعل)<br><b>مترادف:</b> متصل کردن، ارتباط برقرار کردن.<br><b>متضاد:</b> قطع کردن، جدا کردن.<br><b>مثال:</b> 1. می‌خواهی کامپیوتر را <b>وصل</b> کنی؟ 2. <b>ارتباط</b> با این کتاب برایم سخت است.</div>",
+            "pt": "<b>Portúgalska (Português):</b><br><b>Explicação:</b> Juntar coisas para funcionar, ou relacionar-se com ideias. (verbo)<br><b>Sinônimos:</b> ligar, conectar, identificar-se.<br><b>Antônimos:</b> desconectar, separar.<br><b>Exemplos:</b> 1. Quer <b>conectar</b> o computador? 2. Tenho dificuldade em me <b>conectar</b> com este livro.",
+            "pt-BR": "<b>Portúgalska - Brasilía (Português - Brasil):</b><br><b>Explicação:</b> Juntar coisas para funcionar, ou relacionar-se com ideias. (verbo)<br><b>Sinônimos:</b> ligar, conectar, identificar-se.<br><b>Antônimos:</b> desconectar, separar.<br><b>Exemplos:</b> 1. Você quer <b>conectar</b> o computador? 2. Tenho dificuldade em me <b>conectar</b> com este livro.",
+            "pl": "<b>Pólska (Polski):</b><br><b>Wyjaśnienie:</b> Złożyć sprzęt, aby działał, lub utożsamiać się z czymś/kimś. (czasownik)<br><b>Synonimy:</b> łączyć, podłączyć, utożsamiać się.<br><b>Antonimy:</b> odłączyć, rozdzielić.<br><b>Przykłady:</b> 1. Czy chcesz <b>podłączyć</b> komputer? 2. Trudno mi się <b>utożsamić</b> z tą książką.",
+            "ro": "<b>Rúmenska (Română):</b><br><b>Explicație:</b> A pune lucruri împreună, sau a rezona cu idei. (verb)<br><b>Sinonime:</b> a lega, a conecta, a rezona.<br><b>Antonime:</b> a deconecta, a separa.<br><b>Exemple:</b> 1. Vrei să <b>conectezi</b> computerul? 2. Îmi e greu să <b>rezonez</b> cu această carte.",
+            "ru": "<b>Rússneska (Русский):</b><br><b>Объяснение:</b> Соединить что-то (например, провода) или находить связь с идеями. (глагол)<br><b>Синонимы:</b> связывать, подключать, ассоциировать.<br><b>Антонимы:</b> отключать, разъединять.<br><b>Примеры:</b> 1. Хочешь <b>подключить</b> компьютер? 2. Мне трудно <b>проникнуться</b> этой книгой.",
+            "es": "<b>Spænska (Español):</b><br><b>Explicación:</b> Unir algo para que funcione, o identificarse con ideas/personas. (verbo)<br><b>Sinónimos:</b> enlazar, conectar, identificarse.<br><b>Antónimos:</b> desconectar, separar.<br><b>Ejemplos:</b> 1. ¿Quieres <b>conectar</b> la computadora? 2. Me cuesta <b>conectar</b> con este libro.",
+            "sv": "<b>Sænska (Svenska):</b><br><b>Förklaring:</b> Att sätta ihop något, eller att relatera till idéer/personer. (verb)<br><b>Synonymer:</b> förbinda, ansluta, relatera.<br><b>Antonymer:</b> koppla ur, skilja åt.<br><b>Exempel:</b> 1. Vill du <b>ansluta</b> datorn? 2. Jag har svårt att <b>relatera</b> till den här boken.",
+            "th": "<b>Tælenska (ภาษาไทย):</b><br><b>คำอธิบาย:</b> เชื่อมต่อสิ่งต่างๆ หรือมีความเชื่อมโยงทางใจกับความคิด (คำกริยา)<br><b>คำพ้องความหมาย:</b> เชื่อมโยง, เชื่อมต่อ, เข้าถึง<br><b>คำตรงข้าม:</b> ตัดการเชื่อมต่อ, แยกออก<br><b>ตัวอย่าง:</b> 1. คุณต้องการ<b>เชื่อมต่อ</b>คอมพิวเตอร์ไหม? 2. ฉัน<b>เข้าไม่ถึง</b>หนังสือเล่มนี้เลย",
+            "uk": "<b>Úkraínska (Українська):</b><br><b>Пояснення:</b> З'єднати щось (техніку), або знаходити зв'язок з ідеями. (дієслово)<br><b>Синоніми:</b> зв'язувати, підключати, асоціювати.<br><b>Антоніми:</b> відключати, роз'єднувати.<br><b>Приклади:</b> 1. Хочеш <b>підключити</b> комп'ютер? 2. Мені важко знайти <b>зв'язок</b> з цією книгою.",
+            "vi": "<b>Víetnamska (Tiếng Việt):</b><br><b>Giải thích:</b> Kết nối để hoạt động, hoặc đồng cảm với ý tưởng. (động từ)<br><b>Từ đồng nghĩa:</b> liên kết, kết nối, đồng cảm.<br><b>Từ trái nghĩa:</b> ngắt kết nối, tách rời.<br><b>Ví dụ:</b> 1. Bạn muốn <b>kết nối</b> máy tính không? 2. Tôi khó <b>đồng cảm</b> với cuốn sách này.",
+            "de": "<b>Þýska (Deutsch):</b><br><b>Erklärung:</b> Etwas anschließen, damit es funktioniert, oder sich mit Ideen verbunden fühlen. (Verb)<br><b>Synonyme:</b> verbinden, anschließen, identifizieren.<br><b>Antonyme:</b> trennen, abkoppeln.<br><b>Beispiele:</b> 1. Willst du den Computer <b>anschließen</b>? 2. Ich kann mit diesem Buch wenig <b>anfangen</b>."
+        }
+    },
+    { 
+        text: "hugmynd", 
+        is_exp: "<b>Útskýring:</b> Eitthvað sem manni dettur í hug, lausn, skoðun eða tillaga. (nafnorð)<br><b>Samheiti:</b> hugsun, tillaga, uppástunga.<br><b>Andheiti:</b> staðreynd (í vissu samhengi).<br><b>Dæmi:</b> Þetta er mjög góð <b>hugmynd</b> að nýju verkefni.",
+        translations: {
+            "sq": "<b>Albanska (Shqip):</b><br><b>Shpjegimi:</b> Diçka që të vjen në mendje, një zgjidhje ose propozim. (emër)<br><b>Sinonimet:</b> propozim, ide, mendim.<br><b>Antonimet:</b> fakt.<br><b>Shembuj:</b> Kjo është një <b>ide</b> shumë e mirë për projektin e ri.",
+            "ar": "<div dir='rtl' style='text-align: right;'><b>Arabíska (العربية):</b><br><b>الشرح:</b> شيء يتبادر إلى الذهن، حل أو اقتراح. (اسم)<br><b>مرادف:</b> اقتراح، فكرة.<br><b>مضاد:</b> حقيقة.<br><b>مثال:</b> هذه <b>فكرة</b> جيدة جداً لمشروع جديد.</div>",
+            "da": "<b>Danska (Dansk):</b><br><b>Forklaring:</b> Noget, man kommer i tanke om, forslag. (navneord)<br><b>Synonymer:</b> tanke, idé, forslag.<br><b>Antonymer:</b> kendsgerning.<br><b>Eksempel:</b> Dette er en meget god <b>idé</b> til et nyt projekt.",
+            "et": "<b>Eistneska (Eesti):</b><br><b>Selgitus:</b> Midagi, mis pähe tuleb, lahendus või ettepanek. (nimisõna)<br><b>Sünonüümid:</b> ettepanek, idee, mõte.<br><b>Antonüümid:</b> fakt.<br><b>Näide:</b> See on väga hea <b>idee</b> uue projekti jaoks.",
+            "en": "<b>Enska (English):</b><br><b>Explanation:</b> Something that comes to mind, a solution or proposal. (noun)<br><b>Synonyms:</b> proposal, idea, thought.<br><b>Antonyms:</b> fact.<br><b>Example:</b> This is a very good <b>idea</b> for a new project.",
+            "tl": "<b>Filippseyska (Tagalog):</b><br><b>Paliwanag:</b> Isang bagay na pumasok sa isip, mungkahi. (pangngalan)<br><b>Kasingkahulugan:</b> panukala, ideya.<br><b>Kasalungat:</b> katotohanan.<br><b>Halimbawa:</b> Ito ay isang napakagandang <b>ideya</b> para sa bagong proyekto.",
+            "fr": "<b>Franska (Français):</b><br><b>Explication:</b> Quelque chose qui vient à l'esprit, une suggestion ou solution. (nom)<br><b>Synonymes:</b> proposition, idée, pensée.<br><b>Antonymes:</b> fait.<br><b>Exemple:</b> C'est une très bonne <b>idée</b> pour un nouveau projet.",
+            "it": "<b>Ítalska (Italiano):</b><br><b>Spiegazione:</b> Qualcosa che viene in mente, una soluzione o una proposta. (sostantivo)<br><b>Sinonimi:</b> proposta, idea, pensiero.<br><b>Antonimi:</b> fatto.<br><b>Esempio:</b> Questa è un'ottima <b>idea</b> per un nuovo progetto.",
+            "zh": "<b>Kínverska (中文):</b><br><b>解释:</b> 脑海中想到的事物，解决办法或提议。 (名词)<br><b>同义词:</b> 提议, 想法, 主意。<br><b>反义词:</b> 事实。<br><b>例句:</b> 这是一个新项目的绝佳<b>想法</b>。",
+            "ku": "<b>Kúrdíska (Kurdî):</b><br><b>Ravekirin:</b> Tiştek ku tê bîra mirov, çareseriyek an pêşniyarek. (navdêr)<br><b>Hevwate:</b> pêşniyar, raman, fîkîr.<br><b>Dijwate:</b> rastî.<br><b>Mînak:</b> Ev <b>fikrek</b> gelek baş e ji bo projeya nû.",
+            "lv": "<b>Lettneska (Latviešu):</b><br><b>Paskaidrojums:</b> Kaut kas, kas ienāk prātā, risinājums vai priekšlikums. (lietvārds)<br><b>Sinonīmi:</b> priekšlikums, ideja.<br><b>Antonīmi:</b> fakts.<br><b>Piemērs:</b> Šī ir ļoti laba <b>ideja</b> jaunam projektam.",
+            "lt": "<b>Litháíska (Lietuvių):</b><br><b>Paaiškinimas:</b> Kažkas, kas ateina į galvą, sprendimas ar pasiūlymas. (daiktavardis)<br><b>Sinonimai:</b> pasiūlymas, idėja, mintis.<br><b>Antonimai:</b> faktas.<br><b>Pavyzdžiai:</b> Tai labai gera <b>idėja</b> naujam projektui.",
+            "no": "<b>Norska (Norsk):</b><br><b>Forklaring:</b> Noe man tenker på, en løsning eller et forslag. (substantiv)<br><b>Synonymer:</b> forslag, idé, tanke.<br><b>Antonymer:</b> faktum.<br><b>Eksempel:</b> Dette er en veldig god <b>idé</b> til et nytt prosjekt.",
+            "fa": "<div dir='rtl' style='text-align: right;'><b>Persneska (فارسی):</b><br><b>توضیح:</b> چیزی که به ذهن می‌رسد، راه حل یا پیشنهاد. (اسم)<br><b>مترادف:</b> پیشنهاد، ایده، فکر.<br><b>متضاد:</b> واقعیت.<br><b>مثال:</b> این یک <b>ایده</b> بسیار خوب برای یک پروژه جدید است.</div>",
+            "pt": "<b>Portúgalska (Português):</b><br><b>Explicação:</b> Algo que vem à mente, uma solução ou sugestão. (substantivo)<br><b>Sinônimos:</b> proposta, ideia, pensamento.<br><b>Antônimos:</b> fato.<br><b>Exemplo:</b> Esta é uma <b>ideia</b> muito boa para um novo projeto.",
+            "pt-BR": "<b>Portúgalska - Brasilía (Português - Brasil):</b><br><b>Explicação:</b> Algo que vem à mente, uma solução ou sugestão. (substantivo)<br><b>Sinônimos:</b> proposta, ideia, pensamento.<br><b>Antônimos:</b> fato.<br><b>Exemplo:</b> Esta é uma <b>ideia</b> muito boa para um novo projeto.",
+            "pl": "<b>Pólska (Polski):</b><br><b>Wyjaśnienie:</b> Coś, co przychodzi na myśl, rozwiązanie, propozycja. (rzeczownik)<br><b>Synonimy:</b> propozycja, pomysł, myśl.<br><b>Antonimy:</b> fakt.<br><b>Przykład:</b> To bardzo dobry <b>pomysł</b> na nowy projekt.",
+            "ro": "<b>Rúmenska (Română):</b><br><b>Explicație:</b> Ceva care îți vine în minte, o soluție sau o propunere. (substantiv)<br><b>Sinonime:</b> propunere, idee, gând.<br><b>Antonime:</b> fapt.<br><b>Exemplu:</b> Aceasta este o <b>idee</b> foarte bună pentru un nou proiect.",
+            "ru": "<b>Rússneska (Русский):</b><br><b>Объяснение:</b> То, что приходит на ум, решение или предложение. (существительное)<br><b>Синонимы:</b> предложение, мысль, идея.<br><b>Антонимы:</b> факт.<br><b>Пример:</b> Это очень хорошая <b>идея</b> для нового проекта.",
+            "es": "<b>Spænska (Español):</b><br><b>Explicación:</b> Algo que se te ocurre, una solución o sugerencia. (sustantivo)<br><b>Sinónimos:</b> propuesta, idea, pensamiento.<br><b>Antónimos:</b> hecho.<br><b>Ejemplo:</b> Esta es una muy buena <b>idea</b> para un nuevo proyecto.",
+            "sv": "<b>Sænska (Svenska):</b><br><b>Förklaring:</b> Något man tänker på, en lösning eller ett förslag. (substantiv)<br><b>Synonymer:</b> förslag, idé, tanke.<br><b>Antonymer:</b> faktum.<br><b>Exempel:</b> Detta är en mycket bra <b>idé</b> för ett nytt projekt.",
+            "th": "<b>Tælenska (ภาษาไทย):</b><br><b>คำอธิบาย:</b> สิ่งที่ผุดขึ้นมาในหัว, ทางออก หรือข้อเสนอแนะ (คำนาม)<br><b>คำพ้องความหมาย:</b> ข้อเสนอ, ไอเดีย, ความคิด<br><b>คำตรงข้าม:</b> ข้อเท็จจริง<br><b>ตัวอย่าง:</b> นี่เป็น<b>ไอเดีย</b>ที่ดีมากสำหรับโปรเจกต์ใหม่",
+            "uk": "<b>Úkraínska (Українська):</b><br><b>Пояснення:</b> Те, що спадає на думку, рішення чи пропозиція. (іменник)<br><b>Синоніми:</b> пропозиція, ідея, думка.<br><b>Антоніми:</b> факт.<br><b>Приклад:</b> Це дуже хороша <b>ідея</b> для нового проекту.",
+            "vi": "<b>Víetnamska (Tiếng Việt):</b><br><b>Giải thích:</b> Điều gì đó nảy ra trong đầu, giải pháp hoặc đề xuất. (danh từ)<br><b>Từ đồng nghĩa:</b> đề xuất, ý tưởng, suy nghĩ.<br><b>Từ trái nghĩa:</b> sự thật.<br><b>Ví dụ:</b> Đây là một <b>ý tưởng</b> rất hay cho dự án mới.",
+            "de": "<b>Þýska (Deutsch):</b><br><b>Erklärung:</b> Etwas, das einem in den Sinn kommt, eine Lösung oder ein Vorschlag. (Substantiv)<br><b>Synonyme:</b> Vorschlag, Idee, Gedanke.<br><b>Antonyme:</b> Fakt.<br><b>Beispiel:</b> Das ist eine sehr gute <b>Idee</b> für ein neues Projekt."
+        }
+    },
+    { 
+        text: "bæta", 
+        is_exp: "<b>Útskýring:</b> Að gera eitthvað betra, laga eitthvað brotið, eða að auka við eitthvað (t.d. bæta vatni í). (sagnorð)<br><b>Samheiti:</b> laga, betrumbæta, auka.<br><b>Andheiti:</b> skemma, versna, minnka.<br><b>Dæmi:</b> 1. Við ætlum að reyna að <b>bæta</b> okkur. 2. Viltu <b>bæta</b> við meiri mjólk í kaffið?",
+        translations: {
+            "sq": "<b>Albanska (Shqip):</b><br><b>Shpjegimi:</b> Të bësh diçka më të mirë, të riparosh ose të shtosh. (folje)<br><b>Sinonimet:</b> riparoj, përmirësoj, shtoj.<br><b>Antonimet:</b> dëmtoj, përkeqësoj, pakësoj.<br><b>Shembuj:</b> 1. Ne do të përpiqemi të <b>përmirësohemi</b>. 2. A dëshiron të <b>shtosh</b> më shumë qumësht?",
+            "ar": "<div dir='rtl' style='text-align: right;'><b>Arabíska (العربية):</b><br><b>الشرح:</b> جعل شيء ما أفضل، إصلاح، أو الإضافة إلى شيء. (فعل)<br><b>مرادف:</b> إصلاح، تحسين، إضافة.<br><b>مضاد:</b> إتلاف، تقليل.<br><b>مثال:</b> 1. سنحاول <b>تحسين</b> أنفسنا. 2. هل تريد <b>إضافة</b> المزيد من الحليب؟</div>",
+            "da": "<b>Danska (Dansk):</b><br><b>Forklaring:</b> At gøre noget bedre, reparere, eller tilføje mere. (udsagnsord)<br><b>Synonymer:</b> reparere, forbedre, tilføje.<br><b>Antonymer:</b> ødelægge, forværre, mindske.<br><b>Eksempler:</b> 1. Vi vil forsøge at <b>forbedre</b> os. 2. Vil du <b>tilføje</b> mere mælk?",
+            "et": "<b>Eistneska (Eesti):</b><br><b>Selgitus:</b> Midagi paremaks tegema, parandama või lisama. (tegusõna)<br><b>Sünonüümid:</b> parandama, täiustama, lisama.<br><b>Antonüümid:</b> kahjustama, halvendama, vähendama.<br><b>Näited:</b> 1. Me püüame end <b>parandada</b>. 2. Kas sa tahad <b>lisada</b> veel piima?",
+            "en": "<b>Enska (English):</b><br><b>Explanation:</b> To make something better, repair, or to add more to something. (verb)<br><b>Synonyms:</b> fix, improve, add.<br><b>Antonyms:</b> damage, worsen, reduce.<br><b>Examples:</b> 1. We will try to <b>improve</b> ourselves. 2. Do you want to <b>add</b> more milk?",
+            "tl": "<b>Filippseyska (Tagalog):</b><br><b>Paliwanag:</b> Para mas pagandahin ang isang bagay, ayusin, o magdagdag. (pandiwa)<br><b>Kasingkahulugan:</b> ayusin, pagbutihin, idagdag.<br><b>Kasalungat:</b> sirain, palalain, bawasan.<br><b>Halimbawa:</b> 1. Susubukan nating <b>pagbutihin</b> ang ating sarili. 2. Gusto mo bang <b>magdagdag</b> ng gatas?",
+            "fr": "<b>Franska (Français):</b><br><b>Explication:</b> Rendre quelque chose meilleur, réparer, ou ajouter. (verbe)<br><b>Synonymes:</b> réparer, améliorer, ajouter.<br><b>Antonymes:</b> abîmer, aggraver, réduire.<br><b>Exemples:</b> 1. Nous allons essayer de nous <b>améliorer</b>. 2. Veux-tu <b>ajouter</b> plus de lait ?",
+            "it": "<b>Ítalska (Italiano):</b><br><b>Spiegazione:</b> Rendere qualcosa migliore, riparare o aggiungere di più. (verbo)<br><b>Sinonimi:</b> aggiustare, migliorare, aggiungere.<br><b>Antonimi:</b> danneggiare, peggiorare, ridurre.<br><b>Esempi:</b> 1. Cercheremo di <b>migliorare</b>. 2. Vuoi <b>aggiungere</b> altro latte?",
+            "zh": "<b>Kínverska (中文):</b><br><b>解释:</b> 使某事物变得更好，修理，或增加。 (动词)<br><b>同义词:</b> 修理, 改善, 增加。<br><b>反义词:</b> 损坏, 恶化, 减少。<br><b>例句:</b> 1. 我们会努力<b>提高</b>自己。2. 你想<b>多加</b>点牛奶吗？",
+            "ku": "<b>Kúrdíska (Kurdî):</b><br><b>Ravekirin:</b> Tiştekî baştir kirin, çêkirin, an jî lê zêde kirin. (lêker)<br><b>Hevwate:</b> çêkirin, baştir kirin, zêde kirin.<br><b>Dijwate:</b> xera kirin, xirabtir kirin, kêm kirin.<br><b>Mînak:</b> 1. Em ê hewl bidin ku xwe <b>baştir bikin</b>. 2. Ma tu dixwazî ​​şîr <b>lê zêde bikî</b>?",
+            "lv": "<b>Lettneska (Latviešu):</b><br><b>Paskaidrojums:</b> Padarīt kaut ko labāku, salabot vai pievienot vairāk. (darbības vārds)<br><b>Sinonīmi:</b> labot, uzlabot, pievienot.<br><b>Antonīmi:</b> sabojāt, pasliktināt, samazināt.<br><b>Piemēri:</b> 1. Mēs mēģināsim <b>uzlaboties</b>. 2. Vai vēlies <b>pievienot</b> pienu?",
+            "lt": "<b>Litháíska (Lietuvių):</b><br><b>Paaiškinimas:</b> Padaryti kažką geresnio, taisyti arba pridėti. (veiksmažodis)<br><b>Sinonimai:</b> taisyti, tobulinti, pridėti.<br><b>Antonimai:</b> sugadinti, pabloginti, sumažinti.<br><b>Pavyzdžiai:</b> 1. Mes bandysime <b>patobulėti</b>. 2. Ar nori <b>pridėti</b> daugiau pieno?",
+            "no": "<b>Norska (Norsk):</b><br><b>Forklaring:</b> Å gjøre noe bedre, reparere, eller legge til mer. (verb)<br><b>Synonymer:</b> fikse, forbedre, tilføye.<br><b>Antonymer:</b> ødelegge, forverre, minske.<br><b>Eksempler:</b> 1. Vi skal prøve å <b>forbedre</b> oss. 2. Vil du <b>tilføye</b> mer melk?",
+            "fa": "<div dir='rtl' style='text-align: right;'><b>Persneska (فارسی):</b><br><b>توضیح:</b> بهتر کردن چیزی، تعمیر کردن یا اضافه کردن. (فعل)<br><b>مترادف:</b> اصلاح کردن، بهبود بخشیدن، افزودن.<br><b>متضاد:</b> خراب کردن، بدتر کردن، کم کردن.<br><b>مثال:</b> 1. ما سعی می‌کنیم خودمان را <b>بهبود</b> بخشیم. 2. می‌خواهی شیر <b>اضافه</b> کنی؟</div>",
+            "pt": "<b>Portúgalska (Português):</b><br><b>Explicação:</b> Tornar algo melhor, consertar, ou adicionar mais. (verbo)<br><b>Sinônimos:</b> consertar, melhorar, adicionar.<br><b>Antônimos:</b> estragar, piorar, reduzir.<br><b>Exemplos:</b> 1. Vamos tentar nos <b>melhorar</b>. 2. Quer <b>adicionar</b> mais leite?",
+            "pt-BR": "<b>Portúgalska - Brasilía (Português - Brasil):</b><br><b>Explicação:</b> Tornar algo melhor, consertar, ou adicionar mais. (verbo)<br><b>Sinônimos:</b> consertar, melhorar, adicionar.<br><b>Antônimos:</b> estragar, piorar, reduzir.<br><b>Exemplos:</b> 1. Vamos tentar nos <b>melhorar</b>. 2. Você quer <b>adicionar</b> mais leite?",
+            "pl": "<b>Pólska (Polski):</b><br><b>Wyjaśnienie:</b> Zrobić coś lepiej, naprawić, lub dodać więcej. (czasownik)<br><b>Synonimy:</b> naprawić, poprawić, dodać.<br><b>Antonimy:</b> zepsuć, pogorszyć, zmniejszyć.<br><b>Przykłady:</b> 1. Postaramy się <b>poprawić</b>. 2. Czy chcesz <b>dodać</b> więcej mleka?",
+            "ro": "<b>Rúmenska (Română):</b><br><b>Explicație:</b> A face ceva mai bun, a repara, sau a adăuga mai mult. (verb)<br><b>Sinonime:</b> a repara, a îmbunătăți, a adăuga.<br><b>Antonime:</b> a strica, a înrăutăți, a reduce.<br><b>Exemple:</b> 1. Vom încerca să ne <b>îmbunătățim</b>. 2. Vrei să <b>adaugi</b> mai mult lapte?",
+            "ru": "<b>Rússneska (Русский):</b><br><b>Объяснение:</b> Сделать что-то лучше, починить, или добавить. (глагол)<br><b>Синонимы:</b> исправить, улучшить, добавить.<br><b>Антонимы:</b> испортить, ухудшить, убавить.<br><b>Примеры:</b> 1. Мы постараемся стать <b>лучше</b>. 2. Хочешь <b>добавить</b> молока?",
+            "es": "<b>Spænska (Español):</b><br><b>Explicación:</b> Hacer algo mejor, arreglar, o añadir más a algo. (verbo)<br><b>Sinónimos:</b> arreglar, mejorar, añadir.<br><b>Antónimos:</b> dañar, empeorar, reducir.<br><b>Ejemplos:</b> 1. Vamos a intentar <b>mejorar</b>. 2. ¿Quieres <b>añadir</b> más leche?",
+            "sv": "<b>Sænska (Svenska):</b><br><b>Förklaring:</b> Att göra något bättre, laga, eller att lägga till mer. (verb)<br><b>Synonymer:</b> laga, förbättra, tillsätta.<br><b>Antonymer:</b> förstöra, försämra, minska.<br><b>Exempel:</b> 1. Vi ska försöka <b>förbättra</b> oss. 2. Vill du <b>lägga till</b> mer mjölk?",
+            "th": "<b>Tælenska (ภาษาไทย):</b><br><b>คำอธิบาย:</b> ทำให้บางสิ่งดีขึ้น ซ่อมแซม หรือเพิ่มเข้าไป (คำกริยา)<br><b>คำพ้องความหมาย:</b> แก้ไข, ปรับปรุง, เพิ่มเติม<br><b>คำตรงข้าม:</b> ทำลาย, ทำให้แย่ลง, ลดลง<br><b>ตัวอย่าง:</b> 1. เราจะพยายาม<b>ปรับปรุง</b>ตัวเอง 2. คุณต้องการ<b>เติม</b>นมเพิ่มไหม?",
+            "uk": "<b>Úkraínska (Українська):</b><br><b>Пояснення:</b> Зробити щось кращим, полагодити, або додати. (дієслово)<br><b>Синоніми:</b> виправити, покращити, додати.<br><b>Антоніми:</b> зіпсувати, погіршити, зменшити.<br><b>Приклади:</b> 1. Ми постараємося <b>покращити</b> себе. 2. Хочеш <b>додати</b> ще молока?",
+            "vi": "<b>Víetnamska (Tiếng Việt):</b><br><b>Giải thích:</b> Làm cho tốt hơn, sửa chữa, hoặc thêm vào. (động từ)<br><b>Từ đồng nghĩa:</b> sửa chữa, cải thiện, thêm.<br><b>Từ trái nghĩa:</b> làm hỏng, làm xấu đi, giảm bớt.<br><b>Ví dụ:</b> 1. Chúng ta sẽ cố gắng <b>cải thiện</b>. 2. Bạn có muốn <b>thêm</b> sữa không?",
+            "de": "<b>Þýska (Deutsch):</b><br><b>Erklärung:</b> Etwas besser machen, reparieren oder mehr hinzufügen. (Verb)<br><b>Synonyme:</b> reparieren, verbessern, hinzufügen.<br><b>Antonyme:</b> beschädigen, verschlechtern, verringern.<br><b>Beispiele:</b> 1. Wir werden versuchen, uns zu <b>verbessern</b>. 2. Willst du mehr Milch <b>hinzufügen</b>?"
+        }
+    },
+    { 
+        text: "almennur", 
+        is_exp: "<b>Útskýring:</b> Eitthvað sem á við um allt fólk, er fyrir alla eða er mjög venjulegt. (lýsingarorð)<br><b>Samheiti:</b> venjulegur, algengur, opinber.<br><b>Andheiti:</b> sérstakur, óvenjulegur, einka.<br><b>Dæmi:</b> 1. Þetta er <b>almennur</b> (opinber) frídagur fyrir allt fólk. 2. Það er <b>almenn</b> (algeng) regla að mæta á réttum tíma.",
+        translations: {
+            "sq": "<b>Albanska (Shqip):</b><br><b>Shpjegimi:</b> Diçka që zbatohet për të gjithë, është publike ose shumë e zakonshme. (mbiemër)<br><b>Sinonimet:</b> i përgjithshëm, i zakonshëm, publik.<br><b>Antonimet:</b> i veçantë, privat.<br><b>Shembuj:</b> 1. Kjo është një festë <b>publike</b> për të gjithë. 2. Është një rregull i <b>përgjithshëm</b> të jesh në kohë.",
+            "ar": "<div dir='rtl' style='text-align: right;'><b>Arabíska (العربية):</b><br><b>الشرح:</b> شيء ينطبق على جميع الناس، متاح للجميع أو عادي جداً. (صفة)<br><b>مرادف:</b> عام، عادي، شائع.<br><b>مضاد:</b> خاص، غير عادي.<br><b>مثال:</b> 1. هذا يوم عطلة <b>عامة</b> للجميع. 2. إنها قاعدة <b>عامة</b> أن تحضر في الوقت المحدد.</div>",
+            "da": "<b>Danska (Dansk):</b><br><b>Forklaring:</b> Noget der gælder alle mennesker, eller er meget normalt. (tillægsord)<br><b>Synonymer:</b> almindelig, generel, offentlig.<br><b>Antonymer:</b> speciel, usædvanlig, privat.<br><b>Eksempler:</b> 1. Dette er en <b>offentlig</b> fridag for alle. 2. Det er en <b>generel</b> regel at møde til tiden.",
+            "et": "<b>Eistneska (Eesti):</b><br><b>Selgitus:</b> Miski, mis kehtib kõigile või on väga levinud. (omadussõna)<br><b>Sünonüümid:</b> ühine, üldine, avalik.<br><b>Antonüümid:</b> spetsiaalne, era-, ebatavaline.<br><b>Näited:</b> 1. See on <b>riigipüha</b> kõigile. 2. Õigeks ajaks jõudmine on <b>üldine</b> reegel.",
+            "en": "<b>Enska (English):</b><br><b>Explanation:</b> Something that applies to all people, is for everyone, or is very common. (adjective)<br><b>Synonyms:</b> common, general, public.<br><b>Antonyms:</b> special, private, unusual.<br><b>Examples:</b> 1. This is a <b>public</b> holiday for everyone. 2. It's a <b>general</b> rule to be on time.",
+            "tl": "<b>Filippseyska (Tagalog):</b><br><b>Paliwanag:</b> Bagay na naaangkop sa lahat ng tao, pampubliko, o karaniwan. (pang-uri)<br><b>Kasingkahulugan:</b> karaniwan, pangkalahatan, pampubliko.<br><b>Kasalungat:</b> espesyal, pribado.<br><b>Halimbawa:</b> 1. Ito ay isang <b>pampublikong</b> holiday. 2. <b>Karaniwang</b> panuntunan ang pumasok sa tamang oras.",
+            "fr": "<b>Franska (Français):</b><br><b>Explication:</b> Quelque chose qui s'applique à tous, public, ou très commun. (adjectif)<br><b>Synonymes:</b> commun, général, public.<br><b>Antonymes:</b> spécial, privé, rare.<br><b>Exemples:</b> 1. C'est un jour férié <b>public</b> pour tous. 2. C'est une règle <b>générale</b> d'être à l'heure.",
+            "it": "<b>Ítalska (Italiano):</b><br><b>Spiegazione:</b> Qualcosa che si applica a tutte le persone, pubblico o molto comune. (aggettivo)<br><b>Sinonimi:</b> comune, generale, pubblico.<br><b>Antonimi:</b> speciale, privato, insolito.<br><b>Esempi:</b> 1. Questa è una festa <b>pubblica</b> per tutti. 2. È una regola <b>generale</b> essere puntuali.",
+            "zh": "<b>Kínverska (中文):</b><br><b>解释:</b> 适用于所有人的事物，公众的，或非常普遍的。 (形容词)<br><b>同义词:</b> 普遍的, 一般的, 公众的。<br><b>反义词:</b> 特殊的, 私人的。<br><b>例句:</b> 1. 这一天是所有人的<b>公共</b>假日。2. 准时是<b>一般</b>的规矩。",
+            "ku": "<b>Kúrdíska (Kurdî):</b><br><b>Ravekirin:</b> Tiştekî ku ji bo hemû mirovan derbasdar e, an jî gelek asayî ye. (rengdêr)<br><b>Hevwate:</b> hevbeş, giştî.<br><b>Dijwate:</b> taybet, ne asayî.<br><b>Mînak:</b> 1. Ev betlaneyek <b>giştî</b> ye. 2. Di wextê xwe de hatin qaîdeyek <b>giştî</b> ye.",
+            "lv": "<b>Lettneska (Latviešu):</b><br><b>Paskaidrojums:</b> Kaut kas, kas attiecas uz visiem cilvēkiem, publisks vai parasts. (īpašības vārds)<br><b>Sinonīmi:</b> parasts, vispārējs, publisks.<br><b>Antonīmi:</b> īpašs, privāts, neparasts.<br><b>Piemēri:</b> 1. Šī ir <b>publiska</b> brīvdiena visiem. 2. Tas ir <b>vispārējs</b> noteikums ierasties laikā.",
+            "lt": "<b>Litháíska (Lietuvių):</b><br><b>Paaiškinimas:</b> Taikoma visiems žmonėms, vieša arba labai įprasta. (būdvardis)<br><b>Sinonimai:</b> bendras, viešas, įprastas.<br><b>Antonimai:</b> ypatingas, privatus, retas.<br><b>Pavyzdžiai:</b> 1. Tai <b>vieša</b> šventė visiems. 2. <b>Bendra</b> taisyklė yra ateiti laiku.",
+            "no": "<b>Norska (Norsk):</b><br><b>Forklaring:</b> Noe som gjelder for alle mennesker, er for alle eller er veldig vanlig. (adjektiv)<br><b>Synonymer:</b> vanlig, allmenn, offentlig.<br><b>Antonymer:</b> spesiell, privat, uvanlig.<br><b>Eksempler:</b> 1. Dette er en <b>offentlig</b> fridag. 2. Det er en <b>generell</b> regel å møte presis.",
+            "fa": "<div dir='rtl' style='text-align: right;'><b>Persneska (فارسی):</b><br><b>توضیح:</b> چیزی که شامل همه مردم می‌شود، عمومی یا بسیار رایج. (صفت)<br><b>مترادف:</b> عمومی، رایج، کلی.<br><b>متضاد:</b> خاص، خصوصی.<br><b>مثال:</b> 1. این یک تعطیلات <b>عمومی</b> برای همه است. 2. به موقع آمدن یک قانون <b>کلی</b> است.</div>",
+            "pt": "<b>Portúgalska (Português):</b><br><b>Explicação:</b> Algo que se aplica a todas as pessoas, é para todos ou é muito comum. (adjetivo)<br><b>Sinônimos:</b> comum, geral, público.<br><b>Antônimos:</b> especial, privado, incomum.<br><b>Exemplos:</b> 1. Este é um feriado <b>público</b>. 2. É uma regra <b>geral</b> chegar na hora.",
+            "pt-BR": "<b>Portúgalska - Brasilía (Português - Brasil):</b><br><b>Explicação:</b> Algo que se aplica a todas as pessoas, é para todos ou é muito comum. (adjetivo)<br><b>Sinônimos:</b> comum, geral, público.<br><b>Antônimos:</b> especial, privado, incomum.<br><b>Exemplos:</b> 1. Este é um feriado <b>público</b>. 2. É uma regra <b>geral</b> chegar na hora.",
+            "pl": "<b>Pólska (Polski):</b><br><b>Wyjaśnienie:</b> Coś, co dotyczy wszystkich ludzi, publiczne lub bardzo powszechne. (przymiotnik)<br><b>Synonimy:</b> powszechny, ogólny, publiczny.<br><b>Antonimy:</b> specjalny, prywatny, rzadki.<br><b>Przykłady:</b> 1. To jest <b>publiczne</b> święto. 2. <b>Ogólną</b> zasadą jest bycie na czas.",
+            "ro": "<b>Rúmenska (Română):</b><br><b>Explicație:</b> Ceva care se aplică tuturor oamenilor, public sau foarte comun. (adjectiv)<br><b>Sinonime:</b> comun, general, public.<br><b>Antonime:</b> special, privat, neobișnuit.<br><b>Exemple:</b> 1. Aceasta este o sărbătoare <b>publică</b>. 2. Este o regulă <b>generală</b> să fii la timp.",
+            "ru": "<b>Rússneska (Русский):</b><br><b>Объяснение:</b> То, что относится ко всем людям, общественное или очень обычное. (прилагательное)<br><b>Синонимы:</b> общий, всеобщий, публичный.<br><b>Антонимы:</b> особенный, частный, необычный.<br><b>Примеры:</b> 1. Это <b>общественный</b> праздник. 2. Это <b>общее</b> правило - приходить вовремя.",
+            "es": "<b>Spænska (Español):</b><br><b>Explicación:</b> Algo que se aplica a todas las personas, es público o muy común. (adjetivo)<br><b>Sinónimos:</b> común, general, público.<br><b>Antónimos:</b> especial, privado, inusual.<br><b>Ejemplos:</b> 1. Este es un día festivo <b>público</b>. 2. Es una regla <b>general</b> llegar a tiempo.",
+            "sv": "<b>Sænska (Svenska):</b><br><b>Förklaring:</b> Något som gäller alla människor, är offentligt eller mycket vanligt. (adjektiv)<br><b>Synonymer:</b> allmän, vanlig, offentlig.<br><b>Antonymer:</b> speciell, privat, ovanlig.<br><b>Exempel:</b> 1. Detta är en <b>allmän</b> helgdag för alla. 2. Det är en <b>allmän</b> regel att komma i tid.",
+            "th": "<b>Tælenska (ภาษาไทย):</b><br><b>คำอธิบาย:</b> สิ่งที่ใช้ได้กับทุกคน เป็นของสาธารณะ หรือเป็นเรื่องปกติมาก (คำคุณศัพท์)<br><b>คำพ้องความหมาย:</b> ทั่วไป, สาธารณะ, ธรรมดา<br><b>คำตรงข้าม:</b> พิเศษ, ส่วนตัว<br><b>ตัวอย่าง:</b> 1. นี่คือวันหยุด<b>สาธารณะ</b> 2. การมาตรงเวลาคือการปฏิบัติ<b>ทั่วไป</b>",
+            "uk": "<b>Úkraínska (Українська):</b><br><b>Пояснення:</b> Те, що стосується всіх людей, є публічним або дуже звичайним. (прикметник)<br><b>Синоніми:</b> загальний, суспільний, звичайний.<br><b>Антоніми:</b> особливий, приватний.<br><b>Приклади:</b> 1. Це <b>державне</b> (публічне) свято. 2. Це <b>загальне</b> правило - приходити вчасно.",
+            "vi": "<b>Víetnamska (Tiếng Việt):</b><br><b>Giải thích:</b> Điều gì đó áp dụng cho mọi người, dành cho công chúng, hoặc rất bình thường. (tính từ)<br><b>Từ đồng nghĩa:</b> chung, phổ biến, công cộng.<br><b>Từ trái nghĩa:</b> đặc biệt, riêng tư.<br><b>Ví dụ:</b> 1. Đây là ngày nghỉ lễ <b>chung</b>. 2. Đúng giờ là một quy tắc <b>chung</b>.",
+            "de": "<b>Þýska (Deutsch):</b><br><b>Erklärung:</b> Etwas, das für alle gilt, für jeden da ist oder sehr gewöhnlich ist. (Adjektiv)<br><b>Synonyme:</b> allgemein, gewöhnlich, öffentlich.<br><b>Antonyme:</b> speziell, privat, ungewöhnlich.<br><b>Beispiele:</b> 1. Dies ist ein <b>allgemeiner</b> Feiertag. 2. Es ist eine <b>allgemeine</b> Regel, pünktlich zu sein."
+        }
+    },
+    { 
+        text: "hlutverk", 
+        is_exp: "<b>Útskýring:</b> Verkefni, starf eða það sem einhver á að gera. Einnig hlutverk persónu í leikriti eða bíómynd. (nafnorð)<br><b>Samheiti:</b> verkefni, starf, staða, karakter.<br><b>Dæmi:</b> 1. Kennarinn hefur mjög mikilvægt <b>hlutverk</b> í skólanum. 2. Hann lék stórt <b>hlutverk</b> í myndinni.",
+        translations: {
+            "sq": "<b>Albanska (Shqip):</b><br><b>Shpjegimi:</b> Një detyrë që duhet bërë, ose një personazh në një shfaqje/film. (emër)<br><b>Sinonimet:</b> rol, funksion, detyrë.<br><b>Shembuj:</b> 1. Mësuesi ka një <b>rol</b> të rëndësishëm në shkollë. 2. Ai luajti një <b>rol</b> të madh në film.",
+            "ar": "<div dir='rtl' style='text-align: right;'><b>Arabíska (العربية):</b><br><b>الشرح:</b> مهمة أو عمل يجب على شخص القيام به، أو دور شخصية في مسرحية. (اسم)<br><b>مرادف:</b> واجب، دور، وظيفة.<br><b>مثال:</b> 1. المعلم له <b>دور</b> مهم في المدرسة. 2. لعب <b>دوراً</b> كبيراً في الفيلم.</div>",
+            "da": "<b>Danska (Dansk):</b><br><b>Forklaring:</b> En opgave man skal udføre, eller en rolle i et teaterstykke/film. (navneord)<br><b>Synonymer:</b> pligt, rolle, stilling.<br><b>Eksempler:</b> 1. Læreren har en vigtig <b>rolle</b> på skolen. 2. Han spillede en stor <b>rolle</b> i filmen.",
+            "et": "<b>Eistneska (Eesti):</b><br><b>Selgitus:</b> Ülesanne või töö, mida tuleb teha, või tegelaskuju filmis/näidendis. (nimisõna)<br><b>Sünonüümid:</b> kohustus, roll, funktsioon.<br><b>Näited:</b> 1. Õpetajal on koolis oluline <b>roll</b>. 2. Ta mängis filmis suurt <b>rolli</b>.",
+            "en": "<b>Enska (English):</b><br><b>Explanation:</b> A task, job someone has to do, or a character in a play/movie. (noun)<br><b>Synonyms:</b> duty, role, function, part.<br><b>Examples:</b> 1. The teacher has an important <b>role</b> in the school. 2. He played a big <b>role</b> in the movie.",
+            "tl": "<b>Filippseyska (Tagalog):</b><br><b>Paliwanag:</b> Isang gawain/trabaho na dapat gawin, o karakter sa dula/pelikula. (pangngalan)<br><b>Kasingkahulugan:</b> tungkulin, papel.<br><b>Halimbawa:</b> 1. Ang guro ay may mahalagang <b>papel</b> sa paaralan. 2. Gumanap siya ng malaking <b>papel</b> sa pelikula.",
+            "fr": "<b>Franska (Français):</b><br><b>Explication:</b> Une tâche qu'on doit accomplir, ou un rôle dans une pièce/film. (nom)<br><b>Synonymes:</b> devoir, rôle, fonction, personnage.<br><b>Exemples:</b> 1. Le professeur a un <b>rôle</b> important à l'école. 2. Il a joué un grand <b>rôle</b> dans le film.",
+            "it": "<b>Ítalska (Italiano):</b><br><b>Spiegazione:</b> Un compito o lavoro da svolgere, oppure un personaggio in un film/opera. (sostantivo)<br><b>Sinonimi:</b> dovere, ruolo, funzione.<br><b>Esempi:</b> 1. L'insegnante ha un <b>ruolo</b> importante nella scuola. 2. Ha avuto un grande <b>ruolo</b> nel film.",
+            "zh": "<b>Kínverska (中文):</b><br><b>解释:</b> 某人必须完成的任务、工作，或戏剧/电影中的角色。 (名词)<br><b>同义词:</b> 责任, 角色, 作用。<br><b>例句:</b> 1. 老师在学校里扮演着重要<b>角色</b>。 2. 他在电影中演了一个大<b>角色</b>。",
+            "ku": "<b>Kúrdíska (Kurdî):</b><br><b>Ravekirin:</b> Kar an erkek ku divê were kirin, an jî karekterek di fîlmek/lîstikekê de ye. (navdêr)<br><b>Hevwate:</b> erk, rol.<br><b>Mînak:</b> 1. Mamoste li dibistanê xwedî <b>rolek</b> girîng e. 2. Wî di fîlmê de <b>rolek</b> mezin lîst.",
+            "lv": "<b>Lettneska (Latviešu):</b><br><b>Paskaidrojums:</b> Uzdevums vai darbs, kas jādara, vai loma lugā/filmā. (lietvārds)<br><b>Sinonīmi:</b> pienākums, loma.<br><b>Piemēri:</b> 1. Skolotājam ir svarīga <b>loma</b> skolā. 2. Viņš spēlēja lielu <b>lomu</b> filmā.",
+            "lt": "<b>Litháíska (Lietuvių):</b><br><b>Paaiškinimas:</b> Užduotis ar darbas, kurį kažkas turi atlikti, arba vaidmuo spektaklyje/filme. (daiktavardis)<br><b>Sinonimai:</b> pareiga, vaidmuo.<br><b>Pavyzdžiai:</b> 1. Mokytojas turi svarbų <b>vaidmenį</b> mokykloje. 2. Jis vaidino didelį <b>vaidmenį</b> filme.",
+            "no": "<b>Norska (Norsk):</b><br><b>Forklaring:</b> En oppgave eller jobb noen må gjøre, eller en rolle i et teaterstykke/film. (substantiv)<br><b>Synonymer:</b> plikt, rolle, stilling.<br><b>Eksempler:</b> 1. Læreren har en viktig <b>rolle</b> på skolen. 2. Han spilte en stor <b>rolle</b> i filmen.",
+            "fa": "<div dir='rtl' style='text-align: right;'><b>Persneska (فارسی):</b><br><b>توضیح:</b> وظیفه‌ای که کسی باید انجام دهد، یا نقش در یک نمایشنامه/فیلم. (اسم)<br><b>مترادف:</b> مسئولیت، نقش.<br><b>مثال:</b> 1. معلم <b>نقش</b> مهمی در مدرسه دارد. 2. او <b>نقش</b> بزرگی در فیلم بازی کرد.</div>",
+            "pt": "<b>Portúgalska (Português):</b><br><b>Explicação:</b> Uma tarefa ou trabalho a fazer, ou um personagem numa peça/filme. (substantivo)<br><b>Sinônimos:</b> dever, papel, função.<br><b>Exemplos:</b> 1. O professor tem um <b>papel</b> importante na escola. 2. Ele teve um grande <b>papel</b> no filme.",
+            "pt-BR": "<b>Portúgalska - Brasilía (Português - Brasil):</b><br><b>Explicação:</b> Uma tarefa ou trabalho a fazer, ou um personagem numa peça/filme. (substantivo)<br><b>Sinônimos:</b> dever, papel, função.<br><b>Exemplos:</b> 1. O professor tem um <b>papel</b> importante na escola. 2. Ele teve um grande <b>papel</b> no filme.",
+            "pl": "<b>Pólska (Polski):</b><br><b>Wyjaśnienie:</b> Zadanie, praca do wykonania, lub rola postaci w sztuce/filmie. (rzeczownik)<br><b>Synonimy:</b> obowiązek, rola, funkcja.<br><b>Przykłady:</b> 1. Nauczyciel ma ważną <b>rolę</b> w szkole. 2. Odegrał dużą <b>rolę</b> w filmie.",
+            "ro": "<b>Rúmenska (Română):</b><br><b>Explicație:</b> O sarcină sau o muncă, sau un personaj dintr-o piesă/film. (substantiv)<br><b>Sinonime:</b> datorie, rol, funcție.<br><b>Exemple:</b> 1. Profesorul are un <b>rol</b> important în școală. 2. A jucat un <b>rol</b> mare în film.",
+            "ru": "<b>Rússneska (Русский):</b><br><b>Объяснение:</b> Задача, работа, которую кто-то выполняет, или роль в пьесе/фильме. (существительное)<br><b>Синонимы:</b> обязанность, роль, функция.<br><b>Примеры:</b> 1. У учителя важная <b>роль</b> в школе. 2. Он сыграл большую <b>роль</b> в фильме.",
+            "es": "<b>Spænska (Español):</b><br><b>Explicación:</b> Una tarea o trabajo que hacer, o un personaje en una obra/película. (sustantivo)<br><b>Sinónimos:</b> deber, rol, papel, función.<br><b>Ejemplos:</b> 1. El profesor tiene un <b>rol</b> importante en la escuela. 2. Interpretó un gran <b>papel</b> en la película.",
+            "sv": "<b>Sænska (Svenska):</b><br><b>Förklaring:</b> En uppgift eller ett jobb någon måste göra, eller en roll i en pjäs/film. (substantiv)<br><b>Synonymer:</b> plikt, roll, uppgift.<br><b>Exempel:</b> 1. Läraren har en viktig <b>roll</b> i skolan. 2. Han spelade en stor <b>roll</b> i filmen.",
+            "th": "<b>Tælenska (ภาษาไทย):</b><br><b>คำอธิบาย:</b> งานหรือหน้าที่ที่ต้องทำ หรือบทบาทของตัวละครในละคร/ภาพยนตร์ (คำนาม)<br><b>คำพ้องความหมาย:</b> หน้าที่, บทบาท<br><b>ตัวอย่าง:</b> 1. ครูมี<b>บทบาท</b>สำคัญในโรงเรียน 2. เขาเล่น<b>บทบาท</b>สำคัญในภาพยนตร์",
+            "uk": "<b>Úkraínska (Українська):</b><br><b>Пояснення:</b> Завдання або робота, яку треба виконати, чи роль у виставі/фільмі. (іменник)<br><b>Синоніми:</b> обов'язок, роль, функція.<br><b>Приклади:</b> 1. Вчитель має важливу <b>роль</b> у школі. 2. Він зіграв велику <b>роль</b> у фільмі.",
+            "vi": "<b>Víetnamska (Tiếng Việt):</b><br><b>Giải thích:</b> Một nhiệm vụ hoặc công việc, hoặc vai diễn trong vở kịch/phim. (danh từ)<br><b>Từ đồng nghĩa:</b> bổn phận, vai trò, chức năng.<br><b>Ví dụ:</b> 1. Giáo viên có <b>vai trò</b> quan trọng. 2. Anh ấy đóng một <b>vai trò</b> lớn trong phim.",
+            "de": "<b>Þýska (Deutsch):</b><br><b>Erklärung:</b> Eine Aufgabe oder Arbeit, oder eine Rolle in einem Stück/Film. (Substantiv)<br><b>Synonyme:</b> Pflicht, Rolle, Aufgabe.<br><b>Beispiele:</b> 1. Der Lehrer hat eine wichtige <b>Rolle</b> in der Schule. 2. Er spielte eine große <b>Rolle</b> im Film."
+        }
+    }
+];
+
+let userScores = new Array(exerciseData.length).fill(null);
+let userSpoken = new Array(exerciseData.length).fill("");
+
+let currentIndex = 0;
+let recognition;
+let isRecording = false;
+let autoAdvanceTimer = null;
+let hasDownloadedCert = false;
+
+const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+if (SpeechRecognition) {
+    recognition = new SpeechRecognition();
+    recognition.lang = 'is-IS';
+    recognition.continuous = false;
+    recognition.interimResults = false;
+    
+    recognition.onend = () => {
+        isRecording = false;
+        const btn = document.getElementById('record-btn');
+        if (btn) {
+            btn.innerText = "🎤 Tala";
+            btn.classList.remove('recording');
+        }
+        
+        const resDiv = document.getElementById('result');
+        if (resDiv && resDiv.innerText === "Hlusta...") {
+            resDiv.innerText = "";
+        }
+    };
+} else {
+    alert("Þessi vafri styður ekki talgreiningu. Notaðu Chrome eða Edge á tölvu.");
+}
+
+window.onload = () => { 
+    updateUI(); 
+};
+
+function updateProgress() {
+    let correctCount = 0;
+    for (let i = 0; i < userScores.length; i++) {
+        if (userScores[i] === 100) {
+            correctCount++;
+        }
+    }
+    const percent = (correctCount / exerciseData.length) * 100;
+    
+    const progressBar = document.getElementById('progress-bar');
+    if(progressBar) {
+        progressBar.style.width = percent + '%';
+    }
+    return correctCount;
+}
+
+function findNextUnfinished() {
+    for (let i = 0; i < userScores.length; i++) {
+        if (userScores[i] !== 100) {
+            currentIndex = i;
+            break;
+        }
+    }
+    
+    document.getElementById('app').innerHTML = `
+        <h1>Markorð - Lota 2 - A2.2</h1>
+        <div class="progress-container"><div id="progress-bar"></div></div>
+        
+        <div class="lang-selector">
+            <label for="languageSelect"><b>🌍 Veldu tungumál:</b></label>
+            <select id="languageSelect" onchange="updateUI()">
+                <option value="sq">Albanska – Shqip</option>
+                <option value="ar">Arabíska – العربية</option>
+                <option value="da">Danska – Dansk</option>
+                <option value="et">Eistneska – Eesti</option>
+                <option value="en" selected>Enska – English</option>
+                <option value="tl">Filippseyska – Tagalog / Filipino</option>
+                <option value="fr">Franska – Français</option>
+                <option value="it">Ítalska – Italiano</option>
+                <option value="zh">Kínverska – 中文</option>
+                <option value="ku">Kúrdíska – Kurdî</option>
+                <option value="lv">Lettneska – Latviešu</option>
+                <option value="lt">Litháíska – Lietuvių</option>
+                <option value="no">Norska – Norsk</option>
+                <option value="fa">Persneska – فارسی</option>
+                <option value="pt">Portúgalska – Português (EU)</option>
+                <option value="pt-BR">Portúgalska (Brasilía) – Português (BR)</option>
+                <option value="pl">Pólska – Polski</option>
+                <option value="ro">Rúmenska – Română</option>
+                <option value="ru">Rússneska – Русский</option>
+                <option value="es">Spænska – Español</option>
+                <option value="sv">Sænska – Svenska</option>
+                <option value="th">Tælenska – ภาษาไทย</option>
+                <option value="uk">Úkraínska – Українська</option>
+                <option value="vi">Víetnamska – Tiếng Việt</option>
+                <option value="de">Þýska – Deutsch</option>
+            </select>
+        </div>
+
+        <div id="counter"></div>
+        <div id="target"></div>
+        <div id="is-explanation"></div>
+        <br>
+        <button id="record-btn" class="btn" onclick="toggleRecord()">🎤 Tala</button>
+        <div id="spoken"></div>
+        <div id="result"></div>
+        <div id="media-box"></div>
+        <div class="nav-btns">
+            <button class="btn" style="background-color: #5f6368;" onclick="prevExercise()">⬅️ Fyrri</button>
+            <button class="btn" style="background-color: #5f6368;" onclick="nextExercise()">Næsta ➡️</button>
+        </div>
+    `;
+    updateUI();
+}
+
+function updateUI() {
+    clearTimeout(autoAdvanceTimer); 
+    const correctCount = updateProgress();
+
+    if (currentIndex >= exerciseData.length) {
+        if (correctCount === exerciseData.length) {
+            document.getElementById('app').innerHTML = `
+                <div class="progress-container"><div id="progress-bar" style="width: 100%;"></div></div>
+                <h1 style="color: #34a853; font-size: 2.5em;">Frábært! Þú náðir 100% árangri! 🎉</h1>
+                <p style="font-size: 1.2em; color: #555;">Skrifaðu nafnið þitt hér að neðan til að sækja viðurkenningarskjalið þitt.</p>
+                <input type="text" id="studentName" placeholder="Skrifaðu nafnið þitt hér" autocomplete="off" ${hasDownloadedCert ? 'disabled' : ''}><br>
+                <button id="cert-btn" class="btn" style="background-color: ${hasDownloadedCert ? '#5f6368' : '#1a73e8'}; font-size: 1.5em; padding: 15px 30px; margin-top: 10px; cursor: ${hasDownloadedCert ? 'not-allowed' : 'pointer'}; opacity: ${hasDownloadedCert ? '0.7' : '1'};" onclick="downloadCert()" ${hasDownloadedCert ? 'disabled' : ''}>
+                    ${hasDownloadedCert ? '✅ Skjal sótt' : '🏆 Sækja viðurkenningarskjal'}
+                </button>
+                <br><br>
+                <button class="btn" style="background-color: #5f6368;" onclick="location.reload()">🔄 Byrja nýja umferð</button>
+            `;
+        } else {
+            document.getElementById('app').innerHTML = `
+                <div class="progress-container"><div id="progress-bar" style="width: ${(correctCount/exerciseData.length)*100}%;"></div></div>
+                <h1 style="color: #fbbc05; font-size: 2em;">Þú ert næstum því búin(n)!</h1>
+                <p style="font-size: 1.2em;">Þú hefur klárað ${correctCount} af ${exerciseData.length} orðum með 100% árangri.</p>
+                <p style="font-size: 1.1em; color: #555;">Farðu til baka og reyndu aftur við þau orð sem vantaði upp á til að fá skjalið.</p>
+                <button class="btn" style="background-color: #fbbc05; color: #000;" onclick="findNextUnfinished()">➡️ Fara á orð sem vantar</button>
+            `;
+        }
+        return;
+    }
+
+    const curr = exerciseData[currentIndex];
+    
+    const langSelect = document.getElementById('languageSelect');
+    const selectedLang = langSelect ? langSelect.value : 'en';
+
+    document.getElementById('target').innerHTML = curr.text;
+    document.getElementById('is-explanation').innerHTML = curr.is_exp;
+    document.getElementById('counter').innerText = `Orð ${currentIndex + 1} af ${exerciseData.length}`;
+    
+    document.getElementById('media-box').innerHTML = curr.translations[selectedLang] || "Þýðing ekki til / Translation missing";
+
+    const savedScore = userScores[currentIndex];
+    const savedText = userSpoken[currentIndex];
+
+    if (savedScore !== null) {
+        document.getElementById('result').innerText = `Einkunn: ${savedScore}%`;
+        document.getElementById('spoken').innerText = `Þú sagðir: "${savedText}"`;
+    } else {
+        document.getElementById('result').innerText = "";
+        document.getElementById('spoken').innerText = "";
+    }
+}
+
+function nextExercise() {
+    currentIndex++;
+    updateUI();
+}
+
+function prevExercise() {
+    if (currentIndex > 0) {
+        currentIndex--;
+        updateUI();
+    }
+}
+
+function toggleRecord() {
+    if (!recognition) return;
+
+    const btn = document.getElementById('record-btn');
+    if (isRecording) {
+        recognition.stop();
+    } else {
+        try {
+            recognition.start();
+            isRecording = true;
+            btn.innerText = "🛑 Hlusta...";
+            btn.classList.add('recording');
+            document.getElementById('result').innerText = "Hlusta...";
+            document.getElementById('spoken').innerText = "";
+        } catch(e) {
+            console.log("Villa í upptöku: " + e);
+        }
+    }
+}
+
+if (recognition) {
+    recognition.onresult = (event) => {
+        let spoken = event.results[0][0].transcript;
+        spoken = spoken.trim().toLowerCase(); 
+
+        document.getElementById('spoken').innerText = `Þú sagðir: "${spoken}"`;
+        
+        const targetWord = exerciseData[currentIndex].text.toLowerCase();
+        
+        let score = (spoken === targetWord) ? 100 : 0;
+        
+        if (spoken.replace(/[.,/#!$%^&*;:{}=\-_`~()]/g,"").trim() === targetWord) {
+            score = 100;
+        }
+        
+        document.getElementById('result').innerText = `Einkunn: ${score}%`;
+
+        userScores[currentIndex] = score;
+        userSpoken[currentIndex] = spoken;
+        
+        updateProgress();
+
+        if (score === 100) {
+            autoAdvanceTimer = setTimeout(() => {
+                nextExercise();
+            }, 1000); 
+        }
+    };
+}
+
+function downloadCert() {
+    if (hasDownloadedCert) return;
+
+    const studentNameInput = document.getElementById('studentName');
+    const studentName = studentNameInput ? studentNameInput.value.trim() : "";
+    
+    if (studentName === "") {
+        alert("Vinsamlegast skrifaðu nafnið þitt fyrst!");
+        return;
+    }
+
+    const canvas = document.createElement('canvas');
+    canvas.width = 900;
+    canvas.height = 600;
+    const ctx = canvas.getContext('2d');
+    
+    ctx.fillStyle = '#ffffff';
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    
+    ctx.strokeStyle = '#1a73e8';
+    ctx.lineWidth = 15;
+    ctx.strokeRect(20, 20, canvas.width - 40, canvas.height - 40);
+
+    ctx.strokeStyle = '#fbbc05';
+    ctx.lineWidth = 5;
+    ctx.strokeRect(40, 40, canvas.width - 80, canvas.height - 80);
+    
+    ctx.fillStyle = '#1a73e8';
+    ctx.textAlign = 'center';
+    ctx.font = 'bold 50px Arial';
+    ctx.fillText('Viðurkenning', canvas.width / 2, 140);
+    
+    ctx.fillStyle = '#333333';
+    ctx.font = '24px Arial';
+    ctx.fillText('Þetta skjal staðfestir að', canvas.width / 2, 220);
+    
+    ctx.fillStyle = '#000000';
+    ctx.font = 'bold 45px Arial';
+    ctx.fillText(studentName, canvas.width / 2, 290);
+    
+    ctx.fillStyle = '#333333';
+    ctx.font = '24px Arial';
+    ctx.fillText('hefur lokið æfingunni með glæsibrag:', canvas.width / 2, 360);
+
+    ctx.fillStyle = '#1a73e8';
+    ctx.font = 'bold 26px Arial';
+    ctx.fillText('Markorð - Lota 2 - A2.2', canvas.width / 2, 420);
+    
+    ctx.fillStyle = '#34a853';
+    ctx.font = 'italic 28px Arial';
+    ctx.fillText('Frábær árangur! Haltu áfram að æfa þig.', canvas.width / 2, 490);
+
+    const dateString = new Date().toLocaleDateString('is-IS');
+    ctx.fillStyle = '#666666';
+    ctx.font = '18px Arial';
+    ctx.fillText('Dagsetning: ' + dateString, canvas.width / 2, 540);
+    
+    const link = document.createElement('a');
+    link.download = `Vidurkenning_${studentName.replace(/\s+/g, '_')}.png`;
+    link.href = canvas.toDataURL('image/png');
+    link.click();
+    
+    hasDownloadedCert = true;
+    const btn = document.getElementById('cert-btn');
+    if (btn) {
+        btn.disabled = true;
+        btn.innerText = "✅ Skjal sótt";
+        btn.style.backgroundColor = "#5f6368";
+        btn.style.cursor = "not-allowed";
+        btn.style.opacity = "0.7";
+    }
+    if (studentNameInput) {
+        studentNameInput.disabled = true;
+    }
+}
+</script>
+
+</body>
+</html>
